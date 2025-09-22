@@ -102,7 +102,7 @@ If you're using Windows PowerShell and encounter execution policy issues:
 
 Add your team members here:
 - Tony Gonzalez
--
+-Timothy Tsang
 
 ## Requirements
 

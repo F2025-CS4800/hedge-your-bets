@@ -27,3 +27,12 @@ def jason_greeting(request):
         return JsonResponse({"message": "hi this is not jason mar"})
 
     return JsonResponse({"error": "Method not allowed"}, status=405)
+
+
+@csrf_exempt
+def tim_greeting(request):
+    """Hardcoded API endpoint that returns Tim's greeting."""
+    if request.method == "GET":
+        return JsonResponse({"message": "hi this is tim o fy"})
+    
+    return JsonResponse({"error": "Method not allowed"}, status=405)

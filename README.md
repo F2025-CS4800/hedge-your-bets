@@ -1,8 +1,12 @@
-# Hedge Your Bets - Team Project
+# Hedge Your Bets - AI-Powered Sports Betting Analysis
 
-This is a simple team project setup with both Next.js frontend and Django backend.
+**Hedge Your Bets** is a web-based service designed to assist in sports betting by leveraging AI and machine learning models to analyze betting scenarios and provide insights on bet quality and value.
 
-## Project Structure
+## 🎯 Project Overview
+
+This application allows users to input football betting scenarios (currently supporting NFL teams and players) and uses pre-trained machine learning models to evaluate the potential value of their bets. Users can select specific players, actions (like passing yards, rushing yards, receptions, etc.), and betting parameters (over/under) to get AI-powered analysis on their betting decisions.
+
+## 📁 Project Structure
 
 ```
 hedge-your-bets/

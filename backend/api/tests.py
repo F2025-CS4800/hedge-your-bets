@@ -67,3 +67,40 @@ class BettingScenarioAPITest(TestCase):
         self.assertEqual(returned_data['action'], betting_data['action'])
         self.assertEqual(returned_data['action_amount'], betting_data['actionAmount'])
         self.assertEqual(returned_data['bet_amount'], betting_data['betAmount'])
+
+    #Test invalid json format
+    def test_invalid_json_format(self):
+        client = Client()
+        url = reverse('create_betting_scenario')
+        
+        response = client.post(
+            url,
+            data='{"invalid": json}',  # Malformed JSON
+            content_type='application/json'
+        )
+        
+        self.assertEqual(response.status_code, 400)
+        response_data = json.loads(response.content)
+        self.assertIn('Invalid JSON format', response_data['error'])
+
+    #Test errors are produced for missing fields
+    def test_missing_required_fields(self):
+        """Test that missing required fields return validation errors."""
+        client = Client()
+        url = reverse('create_betting_scenario')
+        
+        incomplete_data = {
+            'sport': 'football',
+            'team': 'Kansas City Chiefs'
+            # Missing other required fields
+        }
+        
+        response = client.post(
+            url,
+            data=json.dumps(incomplete_data),
+            content_type='application/json'
+        )
+        
+        self.assertEqual(response.status_code, 400)
+        response_data = json.loads(response.content)
+        self.assertIn('Missing required field', response_data['error'])

@@ -104,3 +104,30 @@ class BettingScenarioAPITest(TestCase):
         self.assertEqual(response.status_code, 400)
         response_data = json.loads(response.content)
         self.assertIn('Missing required field', response_data['error'])
+
+    def test_negative_bet_amount_validation(self):
+        """Test that negative bet amounts are rejected by the API."""
+        client = Client()
+        url = reverse("create_betting_scenario")
+
+        negative_bet_data = {
+            "sport": "football",
+            "team": "Kansas City Chiefs",
+            "player": "Patrick Mahomes",
+            "betType": "over",
+            "action": "Passing Yards",
+            "actionAmount": "250",
+            "betAmount": "-50",  # Negative bet amount should be rejected
+        }
+
+        response = client.post(
+            url, data=json.dumps(negative_bet_data), content_type="application/json"
+        )
+
+        # Should return 400 Bad Request
+        self.assertEqual(response.status_code, 400)
+        response_data = json.loads(response.content)
+        self.assertIn("Bet amount must be greater than 0", response_data["error"])
+
+        # Verify no scenario was created in database
+        self.assertEqual(BettingScenario.objects.count(), 0)

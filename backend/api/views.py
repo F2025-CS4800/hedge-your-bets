@@ -4,7 +4,7 @@ from django.views.decorators.http import require_http_methods
 from django.core.exceptions import ValidationError
 import json
 from datetime import datetime
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from .models import BettingScenario
 
 
@@ -72,28 +72,28 @@ def create_betting_scenario(request):
                 'error': f'Invalid bet type. Must be one of: {", ".join(valid_bet_types)}'
             }, status=400)
         
-        # Validate action amount is a positive number
+        # Validate action amount is a positive number and an actual number
         try:
             action_amount = Decimal(str(data['actionAmount']))
             if action_amount <= 0:
                 return JsonResponse({
                     'error': 'Action amount must be greater than 0'
                 }, status=400)
-        except (ValueError, TypeError):
+        except (ValueError, TypeError, InvalidOperation):
             return JsonResponse({
-                'error': 'Invalid action amount format'
+                'error': 'Action amount must be a valid number'
             }, status=400)
         
-        # Validate bet amount is a positive number
+        # Validate bet amount is a positive number and an actual number
         try:
             bet_amount = Decimal(str(data['betAmount']))
             if bet_amount <= 0:
                 return JsonResponse({
                     'error': 'Bet amount must be greater than 0'
                 }, status=400)
-        except (ValueError, TypeError):
+        except (ValueError, TypeError, InvalidOperation) as e:
             return JsonResponse({
-                'error': 'Invalid bet amount format'
+                'error': 'Bet amount must be a valid number'
             }, status=400)
         
         # Create betting scenario

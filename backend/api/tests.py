@@ -131,3 +131,33 @@ class BettingScenarioAPITest(TestCase):
 
         # Verify no scenario was created in database
         self.assertEqual(BettingScenario.objects.count(), 0)
+
+    def test_bet_amount_is_a_number(self):
+        """Test that bet amount is actually a number."""
+        client = Client()
+        url = reverse("create_betting_scenario")
+
+        #incorrect type for bet amount
+        incorrect_bet_amount_data = {
+            "sport": "football",
+            "team": "Kansas City Chiefs",
+            "player": "Patrick Mahomes",
+            "betType": "over",
+            "action": "Passing Yards",
+            "actionAmount": "250",
+            "betAmount": "one hundred", #Invalid type for bet amount (non-numeric)
+        }
+
+        response = client.post(
+            url,
+            data = json.dumps(incorrect_bet_amount_data),
+            content_type = "application/json"
+        )
+
+        self.assertEqual(response.status_code, 400)
+        response_data = json.loads(response.content)
+        self.assertIn("Bet amount must be a valid number", response_data["error"])
+
+        # Verify no scenario was created in database
+        self.assertEqual(BettingScenario.objects.count(), 0)
+        

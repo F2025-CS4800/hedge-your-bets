@@ -1,6 +1,10 @@
-import Navigation from "../components/Navigation";
+export const metadata = {
+	title: "About Us - Hedge Your Bets",
+	description:
+		"Learn about our mission to revolutionize sports betting with AI and data science",
+};
 
-export default function About() {
+export default function AboutPage() {
 	const teamMembers = [
 		{
 			name: "Jason",
@@ -57,9 +61,7 @@ export default function About() {
 	];
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-800">
-			<Navigation />
-
+		<>
 			{/* Hero Section */}
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
 				<div className="text-center">
@@ -73,7 +75,7 @@ export default function About() {
 				</div>
 			</div>
 
-			{/* Mission Section */}
+			{/* Main Content */}
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
 				<div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
 					<div className="p-8 md:p-12">
@@ -88,7 +90,7 @@ export default function About() {
 								machine learning algorithms with comprehensive
 								sports analytics to help users make smarter
 								betting decisions. We're not just another
-								betting platform. We're your intelligent
+								betting platform – we're your intelligent
 								betting partner.
 							</p>
 
@@ -217,6 +219,6 @@ export default function About() {
 					</div>
 				</div>
 			</div>
-		</div>
+		</>
 	);
 }

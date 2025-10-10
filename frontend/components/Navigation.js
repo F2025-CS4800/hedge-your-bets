@@ -1,7 +1,10 @@
+"use client";
 import Link from "next/link";
 import { useState } from "react";
+import { signIn } from "next-auth/react";
+import SignOutButton from "./SignOutButton";
 
-export default function Navigation() {
+export default function Navigation({ session }) {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 
 	return (
@@ -30,9 +33,22 @@ export default function Navigation() {
 						>
 							About Us
 						</Link>
-						<button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-							Get Started
-						</button>
+						{session ? (
+							<div className="flex items-center space-x-4">
+								<span className="text-white font-medium">
+									Hello,{" "}
+									{session.user?.name || session.user?.email}
+								</span>
+								<SignOutButton />
+							</div>
+						) : (
+							<button
+								onClick={() => signIn("github")}
+								className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+							>
+								Get Started
+							</button>
+						)}
 					</div>
 
 					{/* Mobile menu button */}
@@ -84,9 +100,23 @@ export default function Navigation() {
 								About Us
 							</Link>
 							<div className="px-3 py-2">
-								<button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl w-full">
-									Get Started
-								</button>
+								{session ? (
+									<div className="space-y-2">
+										<div className="text-white font-medium text-center">
+											Hello,{" "}
+											{session.user?.name ||
+												session.user?.email}
+										</div>
+										<SignOutButton fullWidth={true} />
+									</div>
+								) : (
+									<button
+										onClick={() => signIn("github")}
+										className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl w-full"
+									>
+										Get Started
+									</button>
+								)}
 							</div>
 						</div>
 					</div>

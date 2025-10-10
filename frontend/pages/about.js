@@ -88,7 +88,7 @@ export default function About() {
 								machine learning algorithms with comprehensive
 								sports analytics to help users make smarter
 								betting decisions. We're not just another
-								betting platform – we're your intelligent
+								betting platform. We're your intelligent
 								betting partner.
 							</p>
 

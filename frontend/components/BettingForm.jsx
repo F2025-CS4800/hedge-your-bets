@@ -6,9 +6,7 @@ import { predictBet, getPlayersByTeam, getAllTeams } from "../lib/api.js";
 
 export default function BettingForm({ session }) {
   // If no session, show sign-in component
-  if (!session) {
-    return <SignInButton />;
-  }
+  if (!sessi/z
 
   const [formData, setFormData] = useState({
     sport: "football",

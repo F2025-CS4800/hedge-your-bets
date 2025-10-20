@@ -9,16 +9,28 @@ import logging
 from typing import Dict, Optional, List, Any
 from dataclasses import dataclass
 
-from .model_loader import ModelLoader
-from .feature_engineering import FeatureEngineer
-from .constants import (
-    ACTION_TO_STAT, 
-    POSITION_STATS, 
-    VALID_POSITIONS,
-    STAT_DISPLAY_NAMES,
-    STAT_UNITS,
-    QUANTILES
-)
+try:
+    from .model_loader import ModelLoader
+    from .feature_engineering import FeatureEngineer
+    from .constants import (
+        ACTION_TO_STAT, 
+        POSITION_STATS, 
+        VALID_POSITIONS,
+        STAT_DISPLAY_NAMES,
+        STAT_UNITS,
+        QUANTILES
+    )
+except ImportError:
+    from model_loader import ModelLoader
+    from feature_engineering import FeatureEngineer
+    from constants import (
+        ACTION_TO_STAT, 
+        POSITION_STATS, 
+        VALID_POSITIONS,
+        STAT_DISPLAY_NAMES,
+        STAT_UNITS,
+        QUANTILES
+    )
 
 logger = logging.getLogger(__name__)
 

@@ -7,7 +7,11 @@ import joblib
 import logging
 from pathlib import Path
 from typing import Dict, Optional, Tuple, Any
-from .constants import get_model_filename, VALID_POSITIONS, QUANTILES
+
+try:
+    from .constants import get_model_filename, VALID_POSITIONS, QUANTILES
+except ImportError:
+    from constants import get_model_filename, VALID_POSITIONS, QUANTILES
 
 logger = logging.getLogger(__name__)
 

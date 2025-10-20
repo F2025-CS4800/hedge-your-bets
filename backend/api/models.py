@@ -302,11 +302,36 @@ class BettingScenario(models.Model):
         help_text="When the betting scenario was created"
     )
     
-    # Optional fields for future ML model integration
-    prediction_score = models.FloatField(
+    # ML Prediction Results
+    is_processed = models.BooleanField(
+        default=False,
+        help_text="Whether the scenario has been processed by ML model"
+    )
+    
+    # Quantile Predictions
+    prediction_q10 = models.FloatField(
         null=True,
         blank=True,
-        help_text="ML model prediction score (0-1)"
+        help_text="Pessimistic prediction (10th percentile)"
+    )
+    
+    prediction_q50 = models.FloatField(
+        null=True,
+        blank=True,
+        help_text="Most likely prediction (50th percentile / median)"
+    )
+    
+    prediction_q90 = models.FloatField(
+        null=True,
+        blank=True,
+        help_text="Optimistic prediction (90th percentile)"
+    )
+    
+    # Analysis Results
+    win_probability = models.FloatField(
+        null=True,
+        blank=True,
+        help_text="Probability of winning the bet (0.0 to 1.0)"
     )
     
     confidence_level = models.CharField(
@@ -316,9 +341,55 @@ class BettingScenario(models.Model):
         help_text="Confidence level (Low, Medium, High)"
     )
     
-    is_processed = models.BooleanField(
+    expected_value = models.FloatField(
+        null=True,
+        blank=True,
+        help_text="Expected value of the bet"
+    )
+    
+    recommendation = models.CharField(
+        max_length=50,
+        null=True,
+        blank=True,
+        help_text="Bet recommendation (Good Bet, Fair Bet, Poor Bet, etc.)"
+    )
+    
+    # Player Info (from database lookup)
+    player_position = models.CharField(
+        max_length=10,
+        null=True,
+        blank=True,
+        help_text="Player position (QB, RB, WR, TE)"
+    )
+    
+    # Prediction Metadata
+    games_analyzed = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text="Number of games used for prediction"
+    )
+    
+    prediction_season = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text="Season year used for prediction"
+    )
+    
+    prediction_week = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text="Week number predicted for"
+    )
+    
+    has_warning = models.BooleanField(
         default=False,
-        help_text="Whether the scenario has been processed by ML model"
+        help_text="Whether prediction has warnings (e.g., insufficient data)"
+    )
+    
+    warning_message = models.TextField(
+        null=True,
+        blank=True,
+        help_text="Warning message if any"
     )
     
     class Meta:

@@ -22,9 +22,11 @@
       }
     ],
     "strictNullChecks": true,
-    "ignoreDeprecations": "6.0"
-    // "baseUrl": "./", // Removed because it is deprecated in TypeScript 7.0
-    ,
+    "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    },
     "target": "ES2017"
   },
   "include": [

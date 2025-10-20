@@ -3,7 +3,7 @@ __pycache__/
 *.py[cod]
 *.sqlite3
 venv/
-.env
+.env*
 
 # Node / Next.js
 node_modules/

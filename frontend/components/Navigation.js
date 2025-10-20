@@ -42,12 +42,12 @@ export default function Navigation({ session }) {
 								<SignOutButton />
 							</div>
 						) : (
-							<button
-								onClick={() => signIn("github")}
+							<Link
+								href="/"
 								className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
 							>
 								Get Started
-							</button>
+							</Link>
 						)}
 					</div>
 
@@ -110,12 +110,12 @@ export default function Navigation({ session }) {
 										<SignOutButton fullWidth={true} />
 									</div>
 								) : (
-									<button
-										onClick={() => signIn("github")}
-										className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl w-full"
+									<Link
+										href="/"
+										className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl w-full block text-center"
 									>
 										Get Started
-									</button>
+									</Link>
 								)}
 							</div>
 						</div>

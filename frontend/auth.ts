@@ -1,10 +1,35 @@
-import NextAuth from "next-auth";
-import GitHub from "next-auth/providers/github";
+import { NextAuthOptions } from "next-auth";
+import GitHubProvider from "next-auth/providers/github";
+import GoogleProvider from "next-auth/providers/google";
 
-export const {auth, handlers, signIn, signOut} = NextAuth({
-  providers: [GitHub],
-  trustHost: true, // This allows localhost and other development URLs
-  
-  // Change this later on to, when we have our domains:
-  //   trustHost: ["localhost:3000", "yourdomain.com"],
-});
+export const authOptions: NextAuthOptions = {
+  providers: [
+    GitHubProvider({
+      clientId: process.env.AUTH_GITHUB_ID!,
+      clientSecret: process.env.AUTH_GITHUB_SECRET!,
+    }),
+    GoogleProvider({
+      clientId: process.env.AUTH_GOOGLE_ID!,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+    }),
+  ],
+  callbacks: {
+    async jwt({ token, account }) {
+      if (account) {
+        token.accessToken = account.access_token;
+        token.provider = account.provider;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      (session as any).accessToken = token.accessToken;
+      (session as any).provider = token.provider;
+      return session;
+    },
+  },
+  pages: {
+    signIn: '/',
+  },
+};
+
+export default authOptions;

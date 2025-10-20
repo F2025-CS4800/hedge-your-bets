@@ -1,9 +1,10 @@
 ﻿"use server";
-import { auth } from "@/auth";
-import BettingForm from "@/components/BettingForm";
+import { getServerSession } from "next-auth";
+import BettingForm from "../components/BettingForm";
+import { authOptions } from "../auth";
 
 export default async function HomePage() {
-  const session = await auth();
+  const session = await getServerSession(authOptions);
 	console.log("Session in page.jsx:", session);
   return (
     <>

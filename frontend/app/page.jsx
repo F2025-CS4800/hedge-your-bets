@@ -5,7 +5,6 @@ import BettingForm from "@/components/BettingForm";
 export default async function HomePage() {
   const session = await auth();
 	console.log("Session in page.jsx:", session);
-	console.log("here?");
   return (
     <>
       {/* Hero Section */}
@@ -13,7 +12,7 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-               Hedge Your Bets
+               Hedge Your Bet
             </h1>
             <p className="text-xl md:text-2xl text-blue-100 mb-8 max-w-3xl mx-auto">
               AI-Powered Sports Betting Analysis

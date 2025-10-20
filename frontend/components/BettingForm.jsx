@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import SignInButton from "./SignInButton";
-import { predictBet, getPlayersByTeam, getAllTeams } from "/Users/michaelcastillo/Desktop/hyb-app/hedge-your-bets/frontend/lib/api.js";
+import { predictBet, getPlayersByTeam, getAllTeams } from "../lib/api.js";
 
 export default function BettingForm({ session }) {
   // If no session, show sign-in component

@@ -18,10 +18,13 @@ ACTION_TO_STAT = {
     'Interceptions': 'passing_interceptions',
     'Rushing Yards': 'rushing_yards',
     'Rushing TDs': 'rushing_tds',
+    'Rushing Touchdowns': 'rushing_tds',
     'Receiving Yards': 'receiving_yards',
     'Receiving TDs': 'receiving_tds',
+    'Receiving Touchdowns': 'receiving_tds',
     'Receptions': 'receptions',
     'Targets': 'targets',
+    'Carries': 'carries',
     'Touchdowns': 'touchdowns'  # Note: May need position-specific handling
 }
 

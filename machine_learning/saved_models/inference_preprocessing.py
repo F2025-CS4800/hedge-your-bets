@@ -8,6 +8,7 @@ Data: 2020-2024 NFL player and team stats
 import pandas as pd
 import numpy as np
 from pathlib import Path
+from backend.ml_service import constants
 
 
 class InferencePreprocessor:
@@ -89,19 +90,7 @@ POSITION_STATS = {
 }
 
 # Action name mappings (frontend -> model stat name)
-ACTION_TO_STAT = {
-    'Passing Yards': 'passing_yards',
-    'Passing TDs': 'passing_tds',
-    'Completions': 'completions',
-    'Interceptions': 'passing_interceptions',
-    'Rushing Yards': 'rushing_yards',
-    'Rushing TDs': 'rushing_tds',
-    'Receiving Yards': 'receiving_yards',
-    'Receiving TDs': 'receiving_tds',
-    'Receptions': 'receptions',
-    'Targets': 'targets',
-    'Touchdowns': 'touchdowns'  # Note: May need position-specific handling
-}
+ACTION_TO_STAT = constants.ACTION_TO_STAT
 
 # Stat to action name (reverse mapping)
 STAT_TO_ACTION = {v: k for k, v in ACTION_TO_STAT.items()}

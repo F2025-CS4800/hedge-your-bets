@@ -11,4 +11,9 @@ urlpatterns = [
     
     # ML Prediction endpoint
     path("predict-bet/", prediction_views.predict_bet, name="predict_bet"),
+    
+    # Dynamic data endpoints
+    path("teams/", views.get_teams, name="get_teams"),
+    path("players/", views.get_players_by_team, name="get_players_by_team"),
+    path("actions/", views.get_available_actions, name="get_available_actions"),
 ]

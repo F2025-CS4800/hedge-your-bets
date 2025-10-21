@@ -1,12 +1,9 @@
 'use client';
 
-import { useState } from "react";
-import SignInButton from "./SignInButton";
+import React, { useState, useEffect } from "react";
+import PredictionResults from "./PredictionResults";
 
-export default function BettingForm({ session }) {
-  // If no session, show sign-in component
-  if (!sessi/z
-
+export default function BettingForm() {
   const [formData, setFormData] = useState({
     sport: "football",
     team: "",
@@ -19,79 +16,119 @@ export default function BettingForm({ session }) {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionResult, setSubmissionResult] = useState(null);
+  
+  // Dynamic data state
+  const [teams, setTeams] = useState([]);
+  const [players, setPlayers] = useState([]);
+  const [actions, setActions] = useState([]);
+  const [loading, setLoading] = useState({
+    teams: false,
+    players: false,
+    actions: false
+  });
 
-  // Team and player data - Football only
-  const teamData = {
-    football: {
-      "Kansas City Chiefs": [
-        "Patrick Mahomes",
-        "Travis Kelce", 
-        "Tyreek Hill",
-        "Clyde Edwards-Helaire",
-        "Tyrann Mathieu",
-      ],
-      "Tampa Bay Buccaneers": [
-        "Tom Brady",
-        "Mike Evans",
-        "Leonard Fournette",
-        "Rob Gronkowski",
-        "Antonio Brown",
-      ],
-      "Green Bay Packers": [
-        "Aaron Rodgers",
-        "Davante Adams", 
-        "Aaron Jones",
-        "Randall Cobb",
-        "Jaire Alexander",
-      ],
-      "Buffalo Bills": [
-        "Josh Allen",
-        "Stefon Diggs",
-        "Cole Beasley",
-        "Devin Singletary",
-        "Tre'Davious White",
-      ],
-      "Los Angeles Rams": [
-        "Matthew Stafford",
-        "Cooper Kupp",
-        "Odell Beckham Jr.",
-        "Cam Akers", 
-        "Aaron Donald",
-      ],
-      "Dallas Cowboys": [
-        "Dak Prescott",
-        "Ezekiel Elliott",
-        "Amari Cooper",
-        "CeeDee Lamb",
-        "Micah Parsons",
-      ],
-      "New England Patriots": [
-        "Mac Jones",
-        "Damien Harris",
-        "Jakobi Meyers",
-        "Hunter Henry",
-        "Matthew Judon",
-      ],
-      "Pittsburgh Steelers": [
-        "Ben Roethlisberger",
-        "Najee Harris",
-        "Diontae Johnson", 
-        "Chase Claypool",
-        "T.J. Watt",
-      ],
-    },
+  // Load teams on component mount
+  useEffect(() => {
+    loadTeams();
+  }, []);
+
+  // Load players when team changes
+  useEffect(() => {
+    if (formData.team) {
+      loadPlayers(formData.team);
+    } else {
+      setPlayers([]);
+      setFormData(prev => ({ ...prev, player: "", action: "" }));
+    }
+  }, [formData.team]);
+
+  // Load actions when player changes
+  useEffect(() => {
+    if (formData.player) {
+      const selectedPlayer = players.find(p => p.name === formData.player);
+      if (selectedPlayer) {
+        loadActions(selectedPlayer.position);
+      }
+    } else {
+      setActions([]);
+      setFormData(prev => ({ ...prev, action: "" }));
+    }
+  }, [formData.player, players]);
+
+  const loadTeams = async () => {
+    setLoading(prev => ({ ...prev, teams: true }));
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      console.log('Loading teams from:', `${apiUrl}/api/teams/`);
+      
+      const response = await fetch(`${apiUrl}/api/teams/`);
+      console.log('Teams response status:', response.status);
+      
+      const data = await response.json();
+      console.log('Teams response data:', data);
+      
+      if (data.success) {
+        setTeams(data.teams);
+        console.log('Teams loaded successfully:', data.teams.length);
+      } else {
+        console.error('Teams API returned error:', data.error);
+      }
+    } catch (error) {
+      console.error('Error loading teams:', error);
+    } finally {
+      setLoading(prev => ({ ...prev, teams: false }));
+    }
   };
 
-  // Football action options
-  const actionOptions = [
-    "Passing Yards",
-    "Rushing Yards", 
-    "Receiving Yards",
-    "Receptions",
-    "Touchdowns",
-    "Completions",
-    "Interceptions",
-  ];
+  const loadPlayers = async (team) => {
+    setLoading(prev => ({ ...prev, players: true }));
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      console.log('Loading players for team:', team, 'from:', `${apiUrl}/api/players/?team=${team}`);
+      
+      const response = await fetch(`${apiUrl}/api/players/?team=${team}`);
+      console.log('Players response status:', response.status);
+      
+      const data = await response.json();
+      console.log('Players response data:', data);
+      
+      if (data.success) {
+        setPlayers(data.players);
+        console.log('Players loaded successfully:', data.players.length);
+      } else {
+        console.error('Players API returned error:', data.error);
+      }
+    } catch (error) {
+      console.error('Error loading players:', error);
+    } finally {
+      setLoading(prev => ({ ...prev, players: false }));
+    }
+  };
+
+  const loadActions = async (position) => {
+    setLoading(prev => ({ ...prev, actions: true }));
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      console.log('Loading actions for position:', position, 'from:', `${apiUrl}/api/actions/?position=${position}`);
+      
+      const response = await fetch(`${apiUrl}/api/actions/?position=${position}`);
+      console.log('Actions response status:', response.status);
+      
+      const data = await response.json();
+      console.log('Actions response data:', data);
+      
+      if (data.success) {
+        setActions(data.actions);
+        console.log('Actions loaded successfully:', data.actions.length);
+      } else {
+        console.error('Actions API returned error:', data.error);
+      }
+    } catch (error) {
+      console.error('Error loading actions:', error);
+    } finally {
+      setLoading(prev => ({ ...prev, actions: false }));
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -116,29 +153,40 @@ export default function BettingForm({ session }) {
     setIsSubmitting(true);
 
     try {
-      // Simulate API call - replace with actual backend integration later
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      setSubmissionResult({
-        success: true,
-        message: "Betting scenario created successfully!",
-        data: formData,
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/api/predict-bet/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          player: formData.player,
+          action: formData.action,
+          bet_type: formData.betType,
+          action_amount: parseFloat(formData.actionAmount),
+          bet_amount: parseFloat(formData.betAmount) || 0,
+        }),
       });
 
-      // Reset form
-      setFormData({
-        sport: "football",
-        team: "",
-        player: "",
-        betType: "",
-        action: "",
-        actionAmount: "",
-        betAmount: "",
-      });
+      const result = await response.json();
+
+      if (result.success) {
+        setSubmissionResult({
+          success: true,
+          message: "Prediction generated successfully!",
+          predictionData: result,
+        });
+      } else {
+        setSubmissionResult({
+          success: false,
+          message: result.error || "Error generating prediction. Please try again.",
+          suggestions: result.suggestions || null,
+        });
+      }
     } catch (error) {
       setSubmissionResult({
         success: false,
-        message: "Error creating betting scenario. Please try again.",
+        message: "Network error. Please check that the backend is running on port 8000.",
       });
     } finally {
       setIsSubmitting(false);
@@ -178,11 +226,14 @@ export default function BettingForm({ session }) {
                 onChange={handleInputChange}
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors duration-200"
                 required
+                disabled={loading.teams}
               >
-                <option value="">Select Team</option>
-                {Object.keys(teamData.football || {}).map((team) => (
-                  <option key={team} value={team}>
-                    {team}
+                <option value="">
+                  {loading.teams ? "Loading teams..." : "Select Team"}
+                </option>
+                {teams.map((team) => (
+                  <option key={team.abbreviation} value={team.abbreviation}>
+                    {team.abbreviation} ({team.player_count} players)
                   </option>
                 ))}
               </select>
@@ -200,11 +251,14 @@ export default function BettingForm({ session }) {
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors duration-200"
                   required
+                  disabled={loading.players}
                 >
-                  <option value="">Select Player</option>
-                  {teamData.football[formData.team]?.map((player) => (
-                    <option key={player} value={player}>
-                      {player}
+                  <option value="">
+                    {loading.players ? "Loading players..." : "Select Player"}
+                  </option>
+                  {players.map((player) => (
+                    <option key={player.name} value={player.name}>
+                      {player.name} ({player.position})
                     </option>
                   ))}
                 </select>
@@ -240,11 +294,14 @@ export default function BettingForm({ session }) {
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors duration-200"
                   required
+                  disabled={loading.actions || !formData.player}
                 >
-                  <option value="">Select Action</option>
-                  {actionOptions.map((action) => (
-                    <option key={action} value={action}>
-                      {action}
+                  <option value="">
+                    {loading.actions ? "Loading actions..." : !formData.player ? "Select player first" : "Select Action"}
+                  </option>
+                  {actions.map((action) => (
+                    <option key={action.value} value={action.value}>
+                      {action.value}
                     </option>
                   ))}
                 </select>
@@ -308,22 +365,28 @@ export default function BettingForm({ session }) {
           </form>
 
           {submissionResult && (
-            <div
-              className={`mt-6 p-4 rounded-lg ${
-                submissionResult.success
-                  ? "bg-green-50 border border-green-200 text-green-800"
-                  : "bg-red-50 border border-red-200 text-red-800"
-              }`}
-            >
-              <p className="font-medium">{submissionResult.message}</p>
-              {submissionResult.success && submissionResult.data && (
-                <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <h4 className="font-semibold text-gray-900 mb-2">
-                    Submitted Data:
-                  </h4>
-                  <pre className="text-sm bg-white p-3 rounded border overflow-auto">
-                    {JSON.stringify(submissionResult.data, null, 2)}
-                  </pre>
+            <div className="mt-6">
+              {submissionResult.success && submissionResult.predictionData ? (
+                <PredictionResults predictionData={submissionResult.predictionData} />
+              ) : (
+                <div
+                  className={`p-4 rounded-lg ${
+                    submissionResult.success
+                      ? "bg-green-50 border border-green-200 text-green-800"
+                      : "bg-red-50 border border-red-200 text-red-800"
+                  }`}
+                >
+                  <p className="font-medium">{submissionResult.message}</p>
+                  {submissionResult.suggestions && (
+                    <div className="mt-2">
+                      <p className="text-sm">Did you mean:</p>
+                      <ul className="text-sm list-disc list-inside">
+                        {submissionResult.suggestions.map((suggestion, index) => (
+                          <li key={index}>{suggestion}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

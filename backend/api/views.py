@@ -6,6 +6,9 @@ import json
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 from .models import BettingScenario
+from .data_access import get_available_seasons, get_database_stats
+from django.db.models import Count
+from .models import Player
 
 
 @csrf_exempt
@@ -167,5 +170,127 @@ def get_betting_scenarios(request):
         
     except Exception as e:
         return JsonResponse({
+            'error': f'Server error: {str(e)}'
+        }, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_teams(request):
+    """API endpoint to get all unique teams from database."""
+    try:
+        # Get unique teams from players
+        teams = Player.objects.values('current_team').annotate(
+            count=Count('player_id')
+        ).filter(current_team__isnull=False).exclude(current_team='').order_by('current_team')
+        
+        teams_data = []
+        for team in teams:
+            teams_data.append({
+                'abbreviation': team['current_team'],
+                'player_count': team['count']
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'teams': teams_data
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Server error: {str(e)}'
+        }, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_players_by_team(request):
+    """API endpoint to get players for a specific team."""
+    try:
+        team = request.GET.get('team')
+        if not team:
+            return JsonResponse({
+                'success': False,
+                'error': 'Team parameter is required'
+            }, status=400)
+        
+        # Get only players who have played in recent seasons (2024-2025)
+        # This is more reliable than status field
+        from django.db.models import Exists, OuterRef
+        from .models import PlayerGameStats
+        
+        recent_games = PlayerGameStats.objects.filter(
+            player=OuterRef('pk'),
+            season__gte=2024  # Recent seasons only
+        )
+        
+        players = Player.objects.filter(
+            current_team=team
+        ).filter(
+            Exists(recent_games)  # Only players with recent games
+        ).order_by('display_name')
+        
+        players_data = []
+        for player in players:
+            players_data.append({
+                'name': player.display_name,
+                'position': player.position,
+                'jersey_number': player.jersey_number
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'players': players_data
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Server error: {str(e)}'
+        }, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_available_actions(request):
+    """API endpoint to get available actions for a position."""
+    try:
+        position = request.GET.get('position')
+        if not position:
+            return JsonResponse({
+                'success': False,
+                'error': 'Position parameter is required'
+            }, status=400)
+        
+        # Import ML constants to get position-specific stats
+        from ml_service.constants import POSITION_STATS, STAT_DISPLAY_NAMES
+        
+        if position not in POSITION_STATS:
+            return JsonResponse({
+                'success': False,
+                'error': f'Invalid position: {position}'
+            }, status=400)
+        
+        # Get available stats for this position
+        available_stats = POSITION_STATS[position]
+        
+        # Convert to display names
+        actions = []
+        for stat in available_stats:
+            display_name = STAT_DISPLAY_NAMES.get(stat, stat.replace('_', ' ').title())
+            actions.append({
+                'value': display_name,
+                'stat_name': stat
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'actions': actions
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
             'error': f'Server error: {str(e)}'
         }, status=500)

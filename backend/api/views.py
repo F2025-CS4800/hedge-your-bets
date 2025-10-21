@@ -179,6 +179,8 @@ def get_betting_scenarios(request):
 def get_teams(request):
     """API endpoint to get all unique teams from database."""
     try:
+        from .constants import get_team_full_name
+        
         # Get unique teams from players
         teams = Player.objects.values('current_team').annotate(
             count=Count('player_id')
@@ -186,8 +188,10 @@ def get_teams(request):
         
         teams_data = []
         for team in teams:
+            abbreviation = team['current_team']
             teams_data.append({
-                'abbreviation': team['current_team'],
+                'abbreviation': abbreviation,
+                'full_name': get_team_full_name(abbreviation),
                 'player_count': team['count']
             })
         

@@ -233,7 +233,7 @@ export default function BettingForm() {
                 </option>
                 {teams.map((team) => (
                   <option key={team.abbreviation} value={team.abbreviation}>
-                    {team.abbreviation} ({team.player_count} players)
+                    {team.full_name} ({team.abbreviation})
                   </option>
                 ))}
               </select>

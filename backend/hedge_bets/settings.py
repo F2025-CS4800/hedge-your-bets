@@ -86,37 +86,4 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS settings
-# Allow frontend to access backend API
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    # Add your EC2 production URLs here when deploying
-    # "https://your-domain.com",
-    # "http://your-ec2-ip:3000",
-]
-
-# Allow credentials (cookies, authentication headers)
-CORS_ALLOW_CREDENTIALS = True
-
-# Allow these HTTP methods
-CORS_ALLOW_METHODS = [
-    'DELETE',
-    'GET',
-    'OPTIONS',
-    'PATCH',
-    'POST',
-    'PUT',
-]
-
-# Allow these headers
-CORS_ALLOW_HEADERS = [
-    'accept',
-    'accept-encoding',
-    'authorization',
-    'content-type',
-    'dnt',
-    'origin',
-    'user-agent',
-    'x-csrftoken',
-    'x-requested-with',
-]
+CORS_ALLOW_ALL_ORIGINS = True

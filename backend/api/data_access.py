@@ -76,20 +76,13 @@ def search_players(
     return list(Player.objects.filter(q)[:limit])
 
 
-def get_players_by_team(
-    team: str, 
-    position: Optional[str] = None,
-    active_only: bool = True,
-    current_season: int = 2025
-) -> List[Player]:
+def get_players_by_team(team: str, position: Optional[str] = None) -> List[Player]:
     """
     Get all players for a specific team.
     
     Args:
         team: Team abbreviation or full name
         position: Optional position filter
-        active_only: If True, only return players with recent games (default: True)
-        current_season: Season to check for recent games (default: 2025)
     
     Returns:
         List of Player objects
@@ -100,17 +93,7 @@ def get_players_by_team(
     if position:
         q &= Q(position=position)
     
-    players = Player.objects.filter(q)
-    
-    # Filter for active players with recent games
-    if active_only:
-        # Get players who have games in current season OR last season
-        players = players.filter(
-            Q(game_stats__season=current_season) | 
-            Q(game_stats__season=current_season - 1)
-        ).distinct()
-    
-    return list(players.order_by('display_name'))
+    return list(Player.objects.filter(q).order_by('display_name'))
 
 
 def get_player_recent_games(

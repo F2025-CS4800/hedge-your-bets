@@ -9,8 +9,6 @@ urlpatterns = [
     path("betting-scenarios/", views.create_betting_scenario, name="create_betting_scenario"),
     path("betting-scenarios/list/", views.get_betting_scenarios, name="get_betting_scenarios"),
     
-    # ML Prediction endpoints
+    # ML Prediction endpoint
     path("predict-bet/", prediction_views.predict_bet, name="predict_bet"),
-    path("players/", prediction_views.get_players_by_team, name="get_players_by_team"),
-    path("teams/", prediction_views.get_all_teams, name="get_all_teams"),
 ]

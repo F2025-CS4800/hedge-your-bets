@@ -10,6 +10,7 @@ node_modules/
 .next/
 out/
 dist/
+**/next-env.d.ts
 
 # OS files
 .DS_Store

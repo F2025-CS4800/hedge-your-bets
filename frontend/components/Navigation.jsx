@@ -33,6 +33,14 @@ export default function Navigation({ session }) {
 						>
 							About Us
 						</Link>
+            {session ? (
+							<Link
+								href="/previous-bets"
+                className="text-white hover:text-blue-200 transition-colors duration-300"
+							>
+								Previous Bets
+							</Link>
+						) : null}
 						{session ? (
 							<div className="flex items-center space-x-4">
 								<span className="text-white font-medium">
@@ -43,7 +51,7 @@ export default function Navigation({ session }) {
 							</div>
 						) : (
 							<Link
-								href="/"
+								href="/get-started"
 								className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
 							>
 								Get Started

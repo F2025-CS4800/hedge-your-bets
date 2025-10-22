@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import PredictionResults from "./PredictionResults";
+import SignInButton from "./SignInButton";
 
-export default function BettingForm() {
+export default function BettingForm({ session }) {
   const [formData, setFormData] = useState({
     sport: "football",
     team: "",
@@ -192,6 +193,11 @@ export default function BettingForm() {
       setIsSubmitting(false);
     }
   };
+
+  // If no session, show sign-in component
+  if (!session) {
+    return <SignInButton />;
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">

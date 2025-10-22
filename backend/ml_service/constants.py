@@ -4,8 +4,8 @@ Constants and mappings for ML inference service.
 
 # Position-specific stat mappings
 POSITION_STATS = {
-    'QB': ['passing_yards', 'passing_tds', 'completions', 'attempts', 'passing_interceptions', 'rushing_yards'],
-    'RB': ['rushing_yards', 'rushing_tds', 'carries', 'receptions', 'receiving_yards', 'receiving_tds'],
+    'QB': ['passing_yards', 'passing_tds', 'completions', 'passing_interceptions', 'rushing_yards'],
+    'RB': ['rushing_yards', 'rushing_tds', 'receptions', 'receiving_yards', 'receiving_tds'],
     'WR': ['receiving_yards', 'receptions', 'receiving_tds', 'targets'],
     'TE': ['receiving_yards', 'receptions', 'receiving_tds']
 }
@@ -13,13 +13,14 @@ POSITION_STATS = {
 # Action name mappings (frontend -> model stat name)
 ACTION_TO_STAT = {
     'Passing Yards': 'passing_yards',
-    'Passing TDs': 'passing_tds',
+    'Passing Touchdowns': 'passing_tds',
     'Completions': 'completions',
+    'Attempts': 'attempts',
     'Interceptions': 'passing_interceptions',
     'Rushing Yards': 'rushing_yards',
-    'Rushing TDs': 'rushing_tds',
+    'Rushing Touchdowns': 'rushing_tds',
     'Receiving Yards': 'receiving_yards',
-    'Receiving TDs': 'receiving_tds',
+    'Receiving Touchdowns': 'receiving_tds',
     'Receptions': 'receptions',
     'Targets': 'targets',
     'Touchdowns': 'touchdowns'  # Note: May need position-specific handling
@@ -43,6 +44,7 @@ STAT_DISPLAY_NAMES = {
     'passing_yards': 'Passing Yards',
     'passing_tds': 'Passing Touchdowns',
     'completions': 'Completions',
+    'attempts': 'Attempts',
     'passing_interceptions': 'Interceptions',
     'rushing_yards': 'Rushing Yards',
     'rushing_tds': 'Rushing Touchdowns',
@@ -72,6 +74,7 @@ STAT_UNITS = {
     'passing_yards': 'yards',
     'passing_tds': 'TDs',
     'completions': 'completions',
+    'attempts': 'attempts',
     'passing_interceptions': 'INTs',
     'rushing_yards': 'yards',
     'rushing_tds': 'TDs',

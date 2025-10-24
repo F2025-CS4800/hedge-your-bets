@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export const metadata = {
 	title: "About Us - Hedge Your Bets",
 	description:
@@ -210,9 +212,12 @@ export default function AboutPage() {
 										making smarter betting decisions with
 										our AI-powered platform.
 									</p>
-									<button className="bg-white text-blue-600 font-bold py-3 px-8 rounded-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg">
+									<Link 
+										href="/get-started"
+										className="inline-block bg-white text-blue-600 font-bold py-3 px-8 rounded-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg"
+									>
 										Get Started Today
-									</button>
+									</Link>
 								</div>
 							</div>
 						</div>

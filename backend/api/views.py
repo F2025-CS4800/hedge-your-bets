@@ -175,10 +175,24 @@ def get_betting_scenarios(request):
 
 
 @csrf_exempt
-@require_http_methods(["GET"])
+@require_http_methods(["GET", "OPTIONS"])
 def get_teams(request):
     """API endpoint to get all unique teams from database."""
+    # Handle OPTIONS preflight request
+    if request.method == "OPTIONS":
+        response = JsonResponse({})
+        response["Access-Control-Allow-Origin"] = "*"
+        response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+        response["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+        return response
+    
     try:
+        # Add CORS headers manually for debugging
+        response = JsonResponse({})
+        response["Access-Control-Allow-Origin"] = "*"
+        response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+        response["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+        
         from .constants import get_team_full_name
         
         # Get unique teams from players
@@ -195,16 +209,27 @@ def get_teams(request):
                 'player_count': team['count']
             })
         
-        return JsonResponse({
+        response_data = {
             'success': True,
             'teams': teams_data
-        })
+        }
+        
+        response = JsonResponse(response_data)
+        response["Access-Control-Allow-Origin"] = "*"
+        response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+        response["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+        
+        return response
         
     except Exception as e:
-        return JsonResponse({
+        error_response = JsonResponse({
             'success': False,
             'error': f'Server error: {str(e)}'
         }, status=500)
+        error_response["Access-Control-Allow-Origin"] = "*"
+        error_response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+        error_response["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+        return error_response
 
 
 @csrf_exempt

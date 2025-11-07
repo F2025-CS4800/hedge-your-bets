@@ -10,6 +10,9 @@
   },
   "dependencies": {
     "@auth/core": "^0.34.2",
+    "@auth/dynamodb-adapter": "^2.11.1",
+    "@aws-sdk/client-dynamodb": "^3.926.0",
+    "@aws-sdk/lib-dynamodb": "^3.926.0",
     "next": "^15.5.5",
     "next-auth": "^5.0.0-beta.29",
     "react": "^18",

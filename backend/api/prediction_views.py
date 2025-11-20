@@ -131,13 +131,25 @@ def predict_bet(request):
             if latest_game:
                 current_season = latest_game.season
                 current_week = latest_game.week + 1  # Predict for NEXT week
+                
+                # Handle end of regular season (week > 18 = playoffs)
+                if current_week > 18:
+                    # If we're past week 18, we're in playoffs
+                    # Use week 18 for regular season predictions, or set is_playoff=True
+                    # For now, cap at week 18 for regular season
+                    current_week = 18
+                    is_playoff = True
+                else:
+                    is_playoff = False
             else:
                 # Fallback
                 current_season = 2025
                 current_week = 8
+                is_playoff = False
         except Exception:
             current_season = 2025
             current_week = 8
+            is_playoff = False
         
         # Get player history
         try:
@@ -203,7 +215,7 @@ def predict_bet(request):
                 player_history=player_history,
                 current_season=current_season,
                 current_week=current_week,
-                is_playoff=False,
+                is_playoff=is_playoff,
                 team_stats=team_stats
             )
         except ValueError as e:

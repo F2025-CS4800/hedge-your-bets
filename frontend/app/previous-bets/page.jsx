@@ -1,64 +1,105 @@
-export const metadata = {
-	title: "About Us - Hedge Your Bets",
-	description:
-		"Learn about our mission to revolutionize sports betting with AI and data science",
-};
+'use client';
 
-export default function AboutPage() {
-	const teamMembers = [
-		{
-			name: "Jason",
-			role: "Full Stack Developer",
-			description:
-				"Passionate about creating innovative betting analysis tools with modern web technologies.",
-			emoji: "👨‍💻",
-		},
-		{
-			name: "AI Assistant",
-			role: "Machine Learning Engineer",
-			description:
-				"Developing cutting-edge algorithms for sports betting predictions and risk analysis.",
-			emoji: "🤖",
-		},
-		{
-			name: "Data Science Team",
-			role: "Data Scientists",
-			description:
-				"Analyzing vast amounts of sports data to provide accurate betting insights.",
-			emoji: "📊",
-		},
-	];
+import { useState, useEffect } from "react";
+import PreviousBet from "@/components/PreviousBet";
 
-	const features = [
-		{
-			title: "AI-Powered Analysis",
-			description:
-				"Our machine learning algorithms analyze player statistics, team performance, and historical data to provide accurate betting recommendations.",
-			icon: "🧠",
-			color: "from-blue-500 to-cyan-500",
-		},
-		{
-			title: "Real-Time Data",
-			description:
-				"Access up-to-date player stats, injury reports, and team news to make informed betting decisions.",
-			icon: "⚡",
-			color: "from-purple-500 to-pink-500",
-		},
-		{
-			title: "Risk Management",
-			description:
-				"Advanced risk assessment tools help you understand the potential outcomes and manage your betting portfolio.",
-			icon: "🛡️",
-			color: "from-green-500 to-teal-500",
-		},
-		{
-			title: "User-Friendly Interface",
-			description:
-				"Clean, modern design makes it easy to create betting scenarios and understand complex analytics.",
-			icon: "🎨",
-			color: "from-orange-500 to-red-500",
-		},
-	];
+export default function PreviousBetsPage() {
+	const [bets, setBets] = useState([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(null);
+
+	// Fetch bets from DynamoDB on component mount
+	useEffect(() => {
+		const fetchBets = async () => {
+			try {
+				setLoading(true);
+				const response = await fetch('/api/get-bets');
+				const data = await response.json();
+
+				if (data.success) {
+					// Transform DynamoDB data to match component format
+					const transformedBets = data.bets.map((bet, index) => ({
+						id: bet.createdAt, // Use timestamp as unique ID
+						player: bet.player,
+						team: bet.team,
+						action: bet.metric,
+						betType: bet.betType.toLowerCase(),
+						actionAmount: bet.line,
+						betAmount: bet.wager,
+						prediction: bet.aiPrediction,
+						result: bet.result || null,
+						date: new Date(bet.createdAt).toLocaleDateString('en-US', { 
+							month: 'short', 
+							day: 'numeric', 
+							year: 'numeric' 
+						}),
+						status: bet.status.toLowerCase()
+					}));
+					setBets(transformedBets);
+				} else {
+					setError(data.error || "Failed to load bets");
+				}
+			} catch (err) {
+				console.error("Error fetching bets:", err);
+				setError("Failed to load bets. Please try again later.");
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchBets();
+	}, []);
+
+	// Handle status changes
+	const handleStatusChange = async (betId, newStatus) => {
+		// Optimistically update UI
+		setBets(prevBets =>
+			prevBets.map(bet =>
+				bet.id === betId ? { ...bet, status: newStatus } : bet
+			)
+		);
+		
+		// Update DynamoDB
+		try {
+			const response = await fetch('/api/update-bet', {
+				method: 'PATCH',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					betId: betId, // This is the createdAt timestamp
+					status: newStatus,
+				}),
+			});
+
+			const data = await response.json();
+			
+			if (!data.success) {
+				console.error('Failed to update bet status:', data.error);
+				// Revert optimistic update on failure
+				setBets(prevBets =>
+					prevBets.map(bet =>
+						bet.id === betId ? { ...bet, status: bet.status } : bet
+					)
+				);
+			}
+		} catch (error) {
+			console.error('Error updating bet status:', error);
+			// Could add a toast notification here to inform user of failure
+		}
+	};
+
+	// Calculate statistics
+	const stats = {
+		total: bets.length,
+		won: bets.filter(bet => bet.status === 'won').length,
+		lost: bets.filter(bet => bet.status === 'lost').length,
+		pending: bets.filter(bet => bet.status === 'pending').length,
+	};
+	
+	const winRate = stats.total > 0 && (stats.won + stats.lost) > 0 
+		? ((stats.won / (stats.won + stats.lost)) * 100).toFixed(1) 
+		: 0;
 
 	return (
 		<>
@@ -66,158 +107,92 @@ export default function AboutPage() {
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
 				<div className="text-center">
 					<h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-						About Hedge Your Bets
+						Your Betting History
 					</h1>
 					<p className="text-xl md:text-2xl text-blue-100 mb-8 max-w-4xl mx-auto">
-						We're revolutionizing sports betting with artificial
-						intelligence and data science
+						Track your performance and analyze your betting patterns
 					</p>
+				</div>
+
+				{/* Stats Cards */}
+				<div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto mb-8">
+					<div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+						<div className="text-3xl font-bold text-white mb-1">{stats.total}</div>
+						<div className="text-blue-100 text-sm font-medium">Total Bets</div>
+					</div>
+					<div className="bg-green-500/20 backdrop-blur-lg rounded-2xl p-6 border border-green-300/30">
+						<div className="text-3xl font-bold text-white mb-1">{stats.won}</div>
+						<div className="text-green-100 text-sm font-medium">Won</div>
+					</div>
+					<div className="bg-red-500/20 backdrop-blur-lg rounded-2xl p-6 border border-red-300/30">
+						<div className="text-3xl font-bold text-white mb-1">{stats.lost}</div>
+						<div className="text-red-100 text-sm font-medium">Lost</div>
+					</div>
+					<div className="bg-purple-500/20 backdrop-blur-lg rounded-2xl p-6 border border-purple-300/30">
+						<div className="text-3xl font-bold text-white mb-1">{winRate}%</div>
+						<div className="text-purple-100 text-sm font-medium">Win Rate</div>
+					</div>
 				</div>
 			</div>
 
-			{/* Main Content */}
+			{/* Bets List */}
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-				<div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
-					<div className="p-8 md:p-12">
-						<div className="max-w-4xl mx-auto">
-							<h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 text-center">
-								Previous Bets page
-							</h2>
-							<p className="text-lg md:text-xl text-gray-600 leading-relaxed text-center mb-12">
-								At Hedge Your Bets, we believe that sports
-								betting should be informed, strategic, and
-								data-driven. Our platform combines advanced
-								machine learning algorithms with comprehensive
-								sports analytics to help users make smarter
-								betting decisions. We're not just another
-								betting platform we're your intelligent
-								betting partner.
-							</p>
-
-							{/* Features Grid */}
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-								{features.map((feature, index) => (
-									<div key={index} className="group">
-										<div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100">
-											<div
-												className={`w-16 h-16 bg-gradient-to-r ${feature.color} rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}
-											>
-												<span className="text-2xl">
-													{feature.icon}
-												</span>
-											</div>
-											<h3 className="text-xl font-bold text-gray-900 mb-3">
-												{feature.title}
-											</h3>
-											<p className="text-gray-600 leading-relaxed">
-												{feature.description}
-											</p>
-										</div>
-									</div>
-								))}
-							</div>
-
-							{/* Team Section */}
-							<div className="text-center">
-								<h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-12">
-									Meet Our Team
-								</h2>
-								<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-									{teamMembers.map((member, index) => (
-										<div key={index} className="group">
-											<div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-												<div className="text-6xl mb-4 group-hover:scale-110 transition-transform duration-300">
-													{member.emoji}
-												</div>
-												<h3 className="text-xl font-bold text-gray-900 mb-2">
-													{member.name}
-												</h3>
-												<p className="text-blue-600 font-semibold mb-4">
-													{member.role}
-												</p>
-												<p className="text-gray-600 leading-relaxed">
-													{member.description}
-												</p>
-											</div>
-										</div>
-									))}
-								</div>
-							</div>
-
-							{/* Technology Stack */}
-							<div className="mt-16 text-center">
-								<h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8">
-									Technology Stack
-								</h2>
-								<div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8">
-									<div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-										<div className="text-center">
-											<div className="text-3xl mb-2">
-												⚛️
-											</div>
-											<p className="font-semibold text-gray-800">
-												React
-											</p>
-											<p className="text-sm text-gray-600">
-												Frontend
-											</p>
-										</div>
-										<div className="text-center">
-											<div className="text-3xl mb-2">
-												🔥
-											</div>
-											<p className="font-semibold text-gray-800">
-												Next.js
-											</p>
-											<p className="text-sm text-gray-600">
-												Framework
-											</p>
-										</div>
-										<div className="text-center">
-											<div className="text-3xl mb-2">
-												🐍
-											</div>
-											<p className="font-semibold text-gray-800">
-												Python
-											</p>
-											<p className="text-sm text-gray-600">
-												Backend
-											</p>
-										</div>
-										<div className="text-center">
-											<div className="text-3xl mb-2">
-												🤖
-											</div>
-											<p className="font-semibold text-gray-800">
-												Machine Learning
-											</p>
-											<p className="text-sm text-gray-600">
-												AI Engine
-											</p>
-										</div>
-									</div>
-								</div>
-							</div>
-
-							{/* Call to Action */}
-							<div className="mt-16 text-center">
-								<div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white">
-									<h2 className="text-2xl md:text-3xl font-bold mb-4">
-										Ready to Start Your Betting Journey?
-									</h2>
-									<p className="text-blue-100 mb-6 text-lg">
-										Join thousands of users who are already
-										making smarter betting decisions with
-										our AI-powered platform.
-									</p>
-									<button className="bg-white text-blue-600 font-bold py-3 px-8 rounded-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg">
-										Get Started Today
-									</button>
-								</div>
-							</div>
-						</div>
+				{/* Loading State */}
+				{loading && (
+					<div className="bg-white rounded-3xl shadow-2xl p-12 text-center">
+						<div className="animate-spin w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+						<p className="text-gray-600">Loading your bets...</p>
 					</div>
-				</div>
+				)}
+
+				{/* Error State */}
+				{error && (
+					<div className="bg-red-50 border-2 border-red-300 rounded-3xl shadow-2xl p-12 text-center">
+						<div className="text-6xl mb-4">⚠️</div>
+						<h2 className="text-2xl font-bold text-red-900 mb-2">
+							Error Loading Bets
+						</h2>
+						<p className="text-red-700 mb-6">{error}</p>
+						<button 
+							onClick={() => window.location.reload()}
+							className="inline-block bg-gradient-to-r from-red-600 to-red-700 text-white font-bold py-3 px-8 rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-300 transform hover:scale-105 shadow-lg"
+						>
+							Try Again
+						</button>
+					</div>
+				)}
+
+				{/* Bets List */}
+				{!loading && !error && (
+					<div className="space-y-6">
+						{bets.map((bet) => (
+							<PreviousBet 
+								key={bet.id} 
+								bet={bet} 
+								onStatusChange={handleStatusChange}
+							/>
+						))}
+					</div>
+				)}
+
+				{/* Empty State (for when there are no bets) */}
+				{!loading && !error && bets.length === 0 && (
+					<div className="bg-white rounded-3xl shadow-2xl p-12 text-center">
+						<div className="text-6xl mb-4">🎯</div>
+						<h2 className="text-2xl font-bold text-gray-900 mb-2">
+							No Bets Yet
+						</h2>
+						<p className="text-gray-600 mb-6">
+							Start by creating your first betting scenario to see it here.
+						</p>
+						<a 
+							href="/get-started"
+							className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-3 px-8 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+						>
+							Create Your First Bet
+						</a>
+					</div>
+				)}
 			</div>
 		</>
 	);

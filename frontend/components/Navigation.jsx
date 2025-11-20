@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import SignOutButton from "./SignOutButton";
@@ -13,7 +14,14 @@ export default function Navigation({ session }) {
 				<div className="flex justify-between items-center h-16">
 					{/* Logo */}
 					<Link href="/" className="flex items-center space-x-2">
-						<span className="text-2xl">🏈</span>
+						<Image 
+							src="/images/hedge_bets_logo_final.png" 
+							alt="Hedge Your Bets Logo" 
+							width={0}
+							height={0}
+							sizes="100vw"
+							className="h-12 w-auto object-contain"
+						/>
 						<span className="text-xl font-bold text-white">
 							Hedge Your Bets
 						</span>

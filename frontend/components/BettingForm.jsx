@@ -173,6 +173,34 @@ export default function BettingForm({ session }) {
       const result = await response.json();
 
       if (result.success) {
+        // Save bet to DynamoDB after successful prediction
+        try {
+          // Extract recommendation and confidence from the analysis object
+          const recommendation = result.analysis?.recommendation || "N/A";
+          const confidence = result.analysis?.confidence_level || "N/A";
+          const aiPredictionText = `Recommendation: ${recommendation}, Confidence: ${confidence}`;
+          
+          await fetch('/api/place-bet', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              sport: formData.sport,
+              team: formData.team,
+              player: formData.player,
+              betType: formData.betType,
+              metric: formData.action,
+              line: parseFloat(formData.actionAmount),
+              wager: parseFloat(formData.betAmount),
+              aiPrediction: aiPredictionText
+            }),
+          });
+        } catch (dbError) {
+          console.error("Failed to save bet to database:", dbError);
+          // Don't block the user if DB save fails
+        }
+
         setSubmissionResult({
           success: true,
           message: "Prediction generated successfully!",

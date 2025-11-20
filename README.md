@@ -245,7 +245,3 @@ The prediction system now incorporates team-level statistics to improve accuracy
 - **Python** (version 3.8 or higher) - for Django
 - **npm** or **yarn** - for package management
 - **pip** - for Python packages
-
-## License
-
-[Add your license here]

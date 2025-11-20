@@ -5,7 +5,7 @@ Provides convenient functions for ML inference and API views.
 
 import pandas as pd
 from typing import List, Optional, Dict
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Sum, Avg
 from .models import Player, PlayerGameStats
 from .constants import standardize_team_name
 
@@ -271,8 +271,6 @@ def get_team_stats_summary(team: str, season: int) -> Dict:
         }
     
     # Aggregate stats
-    from django.db.models import Sum, Avg
-    
     stats = games.aggregate(
         total_passing_yards=Sum('passing_yards'),
         avg_passing_yards=Avg('passing_yards'),
@@ -280,6 +278,8 @@ def get_team_stats_summary(team: str, season: int) -> Dict:
         avg_rushing_yards=Avg('rushing_yards'),
         total_receptions=Sum('receptions'),
         avg_receptions=Avg('receptions'),
+        total_targets=Sum('targets'),
+        avg_targets=Avg('targets'),
     )
     
     return {
@@ -288,6 +288,90 @@ def get_team_stats_summary(team: str, season: int) -> Dict:
         'total_games': total_games,
         **stats
     }
+
+
+def get_team_stats_for_week(team: str, season: int, week: int) -> Optional[Dict[str, float]]:
+    """
+    Get team statistics for a specific game week.
+    This will be used for predictions.
+    
+    Args:
+        team: Team abbreviation or full name
+        season: Season year
+        week: Week number
+    
+    Returns:
+        Dictionary with team stats for that week:
+        {
+            'team_passing_yards': float,
+            'team_rushing_yards': float,
+            'team_receptions': float,
+            'team_targets': float
+        }
+        Returns None if no data is available (caller should use defaults)
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    team_abb = standardize_team_name(team)
+    
+    # First, try to get stats for the requested week
+    games = PlayerGameStats.objects.filter(
+        team=team_abb,
+        season=season,
+        week=week,
+        season_type='REG'
+    )
+    
+    # If no games found for requested week, fallback to most recent week
+    if games.count() == 0:
+        # Find the most recent week with data for this team/season
+        latest_game = PlayerGameStats.objects.filter(
+            team=team_abb,
+            season=season,
+            season_type='REG'
+        ).order_by('-week').first()
+        
+        if latest_game:
+            # Use the most recent week's data
+            actual_week = latest_game.week
+            if actual_week != week:
+                logger.warning(
+                    f"No data for {team_abb} in {season} Week {week}. "
+                    f"Using Week {actual_week} stats instead."
+                )
+            games = PlayerGameStats.objects.filter(
+                team=team_abb,
+                season=season,
+                week=actual_week,
+                season_type='REG'
+            )
+        else:
+            # No data at all for this team/season
+            logger.warning(
+                f"No game data found for {team_abb} in {season}. "
+                f"Team stats will use defaults."
+            )
+            return None
+    
+    # Aggregate stats for all players on the team for this week
+    # Sum treats NULL values as 0, which is what we want
+    stats = games.aggregate(
+        team_passing_yards=Sum('passing_yards'),
+        team_rushing_yards=Sum('rushing_yards'),
+        team_receptions=Sum('receptions'),
+        team_targets=Sum('targets'),
+    )
+    
+    # Convert to float and ensure all values are present (handle None from Sum)
+    result = {
+        'team_passing_yards': float(stats.get('team_passing_yards') or 0.0),
+        'team_rushing_yards': float(stats.get('team_rushing_yards') or 0.0),
+        'team_receptions': float(stats.get('team_receptions') or 0.0),
+        'team_targets': float(stats.get('team_targets') or 0.0),
+    }
+    
+    return result
 
 
 def get_database_stats() -> Dict:

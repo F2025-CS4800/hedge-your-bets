@@ -7,7 +7,8 @@ import json
 from decimal import Decimal
 from django.test import TestCase, Client
 from django.urls import reverse
-from .models import BettingScenario
+from .models import BettingScenario, Player, PlayerGameStats
+from .data_access import get_team_stats_for_week, get_team_stats_summary
 
 
 class BettingScenarioAPITest(TestCase):
@@ -160,4 +161,173 @@ class BettingScenarioAPITest(TestCase):
 
         # Verify no scenario was created in database
         self.assertEqual(BettingScenario.objects.count(), 0)
+
+
+class TeamStatsTest(TestCase):
+    """Test cases for team stats functionality."""
+    
+    def setUp(self):
+        """Set up test data."""
+        # Create test players
+        self.qb = Player.objects.create(
+            player_id='test-qb-001',
+            display_name='Test QB',
+            position='QB',
+            current_team='KC'
+        )
+        
+        self.rb = Player.objects.create(
+            player_id='test-rb-001',
+            display_name='Test RB',
+            position='RB',
+            current_team='KC'
+        )
+        
+        self.wr = Player.objects.create(
+            player_id='test-wr-001',
+            display_name='Test WR',
+            position='WR',
+            current_team='KC'
+        )
+        
+        # Create game stats for Week 1
+        PlayerGameStats.objects.create(
+            player=self.qb,
+            season=2025,
+            week=1,
+            season_type='REG',
+            team='KC',
+            opponent_team='DEN',
+            passing_yards=250,
+            rushing_yards=20,
+            receptions=0,
+            targets=0
+        )
+        
+        PlayerGameStats.objects.create(
+            player=self.rb,
+            season=2025,
+            week=1,
+            season_type='REG',
+            team='KC',
+            opponent_team='DEN',
+            passing_yards=0,
+            rushing_yards=80,
+            receptions=5,
+            targets=6
+        )
+        
+        PlayerGameStats.objects.create(
+            player=self.wr,
+            season=2025,
+            week=1,
+            season_type='REG',
+            team='KC',
+            opponent_team='DEN',
+            passing_yards=0,
+            rushing_yards=0,
+            receptions=8,
+            targets=12
+        )
+        
+        # Create game stats for Week 2
+        PlayerGameStats.objects.create(
+            player=self.qb,
+            season=2025,
+            week=2,
+            season_type='REG',
+            team='KC',
+            opponent_team='LV',
+            passing_yards=300,
+            rushing_yards=15,
+            receptions=0,
+            targets=0
+        )
+        
+        PlayerGameStats.objects.create(
+            player=self.rb,
+            season=2025,
+            week=2,
+            season_type='REG',
+            team='KC',
+            opponent_team='LV',
+            passing_yards=0,
+            rushing_yards=100,
+            receptions=3,
+            targets=4
+        )
+    
+    def test_get_team_stats_for_week(self):
+        """Test that team stats are correctly calculated for a specific week."""
+        stats = get_team_stats_for_week('KC', 2025, 1)
+        
+        self.assertIsNotNone(stats)
+        self.assertEqual(stats['team_passing_yards'], 250.0)  # Only QB
+        self.assertEqual(stats['team_rushing_yards'], 100.0)  # QB (20) + RB (80)
+        self.assertEqual(stats['team_receptions'], 13.0)  # RB (5) + WR (8)
+        self.assertEqual(stats['team_targets'], 18.0)  # RB (6) + WR (12)
+    
+    def test_get_team_stats_for_week_with_full_team_name(self):
+        """Test that team name standardization works."""
+        stats = get_team_stats_for_week('Kansas City Chiefs', 2025, 1)
+        
+        self.assertIsNotNone(stats)
+        self.assertEqual(stats['team_passing_yards'], 250.0)
+    
+    def test_get_team_stats_for_week_fallback_to_recent(self):
+        """Test that function falls back to most recent week if requested week doesn't exist."""
+        # Request Week 5, but only Week 1 and 2 exist
+        stats = get_team_stats_for_week('KC', 2025, 5)
+        
+        # Should return Week 2 stats (most recent)
+        self.assertIsNotNone(stats)
+        self.assertEqual(stats['team_passing_yards'], 300.0)  # From Week 2
+    
+    def test_get_team_stats_for_week_no_data(self):
+        """Test that function returns None when no data exists."""
+        stats = get_team_stats_for_week('BUF', 2025, 1)
+        
+        # Should return None (no data for BUF)
+        self.assertIsNone(stats)
+    
+    def test_get_team_stats_summary_includes_targets(self):
+        """Test that get_team_stats_summary includes avg_targets."""
+        summary = get_team_stats_summary('KC', 2025)
+        
+        self.assertIsNotNone(summary)
+        self.assertIn('avg_targets', summary)
+        self.assertIn('total_targets', summary)
+        # Week 1: 18 targets, Week 2: 4 targets = 22 total
+        self.assertGreater(summary['avg_targets'], 0)
+    
+    def test_team_stats_handles_null_values(self):
+        """Test that NULL values in stats are handled correctly (treated as 0)."""
+        # Create a player with NULL stats
+        player_null = Player.objects.create(
+            player_id='test-null-001',
+            display_name='Test Null Player',
+            position='WR',
+            current_team='KC'
+        )
+        
+        PlayerGameStats.objects.create(
+            player=player_null,
+            season=2025,
+            week=1,
+            season_type='REG',
+            team='KC',
+            opponent_team='DEN',
+            passing_yards=None,  # NULL value
+            rushing_yards=None,
+            receptions=None,
+            targets=None
+        )
+        
+        # Stats should still calculate correctly (NULLs treated as 0)
+        stats = get_team_stats_for_week('KC', 2025, 1)
+        
+        self.assertIsNotNone(stats)
+        # Values should be the same as before (NULL doesn't add anything)
+        self.assertEqual(stats['team_passing_yards'], 250.0)
+        self.assertEqual(stats['team_rushing_yards'], 100.0)
         

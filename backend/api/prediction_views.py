@@ -7,7 +7,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 import json
 import sys
+import logging
 from decimal import Decimal, InvalidOperation
+
+logger = logging.getLogger(__name__)
 
 # Import ML service
 sys.path.insert(0, 'ml_service')
@@ -18,7 +21,8 @@ from .data_access import (
     get_player_by_name,
     get_player_recent_games,
     search_players,
-    get_available_seasons
+    get_available_seasons,
+    get_team_stats_for_week
 )
 from .models import BettingScenario, PlayerGameStats
 from .constants import standardize_team_name
@@ -155,6 +159,38 @@ def predict_bet(request):
                 f"Predictions may be less accurate."
             )
         
+        # Get team stats for the upcoming game
+        team_stats = None
+        try:
+            team_stats_dict = get_team_stats_for_week(
+                team=team,
+                season=current_season,
+                week=current_week
+            )
+            
+            if team_stats_dict:
+                # Convert to format expected by ML service
+                team_stats = {
+                    'team_passing_yards': team_stats_dict.get('team_passing_yards', 230.0),
+                    'team_rushing_yards': team_stats_dict.get('team_rushing_yards', 120.0),
+                    'team_receptions': team_stats_dict.get('team_receptions', 22.0),
+                    'team_targets': team_stats_dict.get('team_targets', 34.0)
+                }
+            else:
+                # Fallback to defaults if calculation fails
+                logger.warning(
+                    f"Could not calculate team stats for {team} in {current_season} Week {current_week}. "
+                    f"Using default values."
+                )
+                team_stats = None  # Will use defaults in feature engineering
+        except Exception as e:
+            # Fallback to defaults if calculation fails
+            logger.warning(
+                f"Error calculating team stats for {team} in {current_season} Week {current_week}: {e}. "
+                f"Using default values."
+            )
+            team_stats = None  # Will use defaults in feature engineering
+        
         # Make prediction
         try:
             result = predictor.predict_from_betting_scenario(
@@ -167,7 +203,8 @@ def predict_bet(request):
                 player_history=player_history,
                 current_season=current_season,
                 current_week=current_week,
-                is_playoff=False
+                is_playoff=False,
+                team_stats=team_stats
             )
         except ValueError as e:
             # Stat doesn't match position or other validation error

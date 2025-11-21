@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from "react";
 import PreviousBet from "@/components/PreviousBet";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 
 export default function PreviousBetsPage() {
 	const [bets, setBets] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
+	const [showROI, setShowROI] = useState(false);
 
 	// Fetch bets from DynamoDB on component mount
 	useEffect(() => {
@@ -101,6 +103,49 @@ export default function PreviousBetsPage() {
 		? ((stats.won / (stats.won + stats.lost)) * 100).toFixed(1) 
 		: 0;
 
+	// Calculate ROI data for chart (only when shown)
+	const calculateROI = () => {
+		let cumulativeInvested = 0;
+		let cumulativeReturns = 0;
+		const roiData = [];
+
+		// Sort bets by date (oldest first)
+		const sortedBets = [...bets].sort((a, b) => 
+			new Date(a.id) - new Date(b.id)
+		);
+
+		sortedBets.forEach((bet, index) => {
+			cumulativeInvested += bet.betAmount;
+			
+			if (bet.status === 'won') {
+				// Assuming standard -110 odds (risk $110 to win $100)
+				// Payout = wager + (wager / 1.1)
+				cumulativeReturns += bet.betAmount + (bet.betAmount / 1.1);
+			} else if (bet.status === 'lost') {
+				// Lost bets contribute nothing to returns
+				cumulativeReturns += 0;
+			}
+			// Pending bets don't affect ROI yet
+
+			const roi = cumulativeInvested > 0 
+				? ((cumulativeReturns - cumulativeInvested) / cumulativeInvested) * 100 
+				: 0;
+
+			roiData.push({
+				betNumber: index + 1,
+				date: bet.date,
+				roi: roi,
+				invested: cumulativeInvested,
+				returns: cumulativeReturns,
+				profit: cumulativeReturns - cumulativeInvested
+			});
+		});
+
+		return roiData;
+	};
+
+	const roiData = showROI ? calculateROI() : [];
+
 	return (
 		<>
 			{/* Hero Section */}
@@ -133,6 +178,102 @@ export default function PreviousBetsPage() {
 						<div className="text-purple-100 text-sm font-medium">Win Rate</div>
 					</div>
 				</div>
+
+				{/* ROI Chart */}
+				{!loading && !error && bets.length > 0 && (
+					<div className="max-w-5xl mx-auto mb-8">
+						<div className="bg-black/20 backdrop-blur-lg rounded-2xl border border-white/20 overflow-hidden">
+							<button
+								onClick={() => setShowROI(!showROI)}
+								className="w-full p-6 flex items-center justify-between hover:bg-white/5 transition-colors"
+							>
+								<div className="flex items-center gap-3">
+									<div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
+										<svg className="w-6 h-6 text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+										</svg>
+									</div>
+									<h2 className="text-2xl font-bold text-white">ROI Over Time</h2>
+								</div>
+								<svg 
+									className={`w-6 h-6 text-black transition-transform duration-300 ${showROI ? 'rotate-180' : ''}`} 
+									fill="none" 
+									viewBox="0 0 24 24" 
+									stroke="currentColor"
+								>
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+								</svg>
+							</button>
+
+							{showROI && roiData.length > 0 && (
+								<div className="px-6 pb-6">
+									<div className="bg-white/100 rounded-xl p-4">
+										<ResponsiveContainer width="100%" height={300}>
+									<LineChart data={roiData}>
+										<CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
+										<XAxis 
+											dataKey="betNumber" 
+											stroke="#1f2937"
+											tick={{ fill: '#1f2937' }}
+											label={{ value: 'Bet Number', position: 'insideBottom', offset: -5, fill: '#1f2937' }}
+										/>
+										<YAxis 
+											stroke="#1f2937"
+											tick={{ fill: '#1f2937' }}
+											label={{ value: 'ROI (%)', angle: -90, position: 'insideLeft', fill: '#1f2937' }}
+										/>
+										<Tooltip 
+											contentStyle={{ 
+												backgroundColor: 'rgba(31, 41, 55, 0.95)', 
+												border: '1px solid rgba(156, 163, 175, 0.3)',
+												borderRadius: '8px',
+												color: 'white'
+											}}
+											formatter={(value, name) => {
+												if (name === 'roi') return [`${value.toFixed(2)}%`, 'ROI'];
+												if (name === 'profit') return [`$${value.toFixed(2)}`, 'Profit'];
+												return [value, name];
+											}}
+										/>
+										<ReferenceLine y={0} stroke="rgba(0,0,0,0.3)" strokeDasharray="3 3" />
+										<Line 
+											type="monotone" 
+											dataKey="roi" 
+											stroke={roiData[roiData.length - 1]?.roi >= 0 ? "#10b981" : "#ef4444"}
+											strokeWidth={3}
+											dot={{ fill: roiData[roiData.length - 1]?.roi >= 0 ? "#10b981" : "#ef4444", r: 4 }}
+											activeDot={{ r: 6 }}
+										/>
+										</LineChart>
+										</ResponsiveContainer>
+										
+										{/* Summary Stats */}
+										<div className="flex justify-between text-sm text-gray-800 mt-4 px-4">
+											<div>
+												<span className="text-gray-600">Current ROI: </span>
+												<span className={`font-bold ${roiData[roiData.length - 1]?.roi >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+													{roiData[roiData.length - 1]?.roi.toFixed(1)}%
+												</span>
+											</div>
+											<div>
+												<span className="text-gray-600">Profit/Loss: </span>
+												<span className={`font-bold ${roiData[roiData.length - 1]?.profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+													${roiData[roiData.length - 1]?.profit.toFixed(2)}
+												</span>
+											</div>
+											<div>
+												<span className="text-gray-600">Total Invested: </span>
+												<span className="font-bold text-gray-900">
+													${roiData[roiData.length - 1]?.invested.toFixed(2)}
+												</span>
+											</div>
+										</div>
+									</div>
+								</div>
+							)}
+						</div>
+					</div>
+				)}
 			</div>
 
 			{/* Bets List */}

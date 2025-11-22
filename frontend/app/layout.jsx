@@ -17,7 +17,7 @@ export default async function RootLayout({ children }) {
 		<html lang="en">
 			<body className="antialiased">
 				<SessionProviderWrapper session={session}>
-					<div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-800">
+					<div className="min-h-screen bg-gray-950">
 						<Navigation session={session} />
 						<main>{children}</main>
 					</div>

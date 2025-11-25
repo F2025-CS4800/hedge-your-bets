@@ -31,15 +31,25 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     GoogleProvider({
       clientId: process.env.AUTH_GOOGLE_ID!,
       clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
     }),
   ],
   adapter: DynamoDBAdapter(client, { tableName: "users" }),
   
   callbacks: {
-    async jwt({ token, account }) {
+    async jwt({ token, account, user }) {
       if (account) {
         token.accessToken = account.access_token;
         token.provider = account.provider;
+      }
+      if (user) {
+        token.id = user.id;
       }
       return token;
     },
@@ -50,14 +60,17 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         if (token) {
           (session as any).accessToken = (token as any).accessToken ?? null;
           (session as any).provider = (token as any).provider ?? null;
+          (session as any).userId = (token as any).id ?? null;
         } else if (user) {
           // When token isn't available but we have a user (adapter-backed session),
           // attach any useful information from the user record if present.
           (session as any).provider = (user as any).provider ?? null;
+          (session as any).userId = user.id ?? null;
           (session as any).accessToken = null;
         } else {
           (session as any).accessToken = null;
           (session as any).provider = null;
+          (session as any).userId = null;
         }
       } catch (e) {
         // If anything goes wrong, ensure we return a valid session object and
@@ -65,13 +78,36 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         console.error('session callback error', e);
         (session as any).accessToken = null;
         (session as any).provider = null;
+        (session as any).userId = null;
       }
 
       return session;
     },
   },
+  events: {
+    async signIn({ user, account, profile }) {
+      // Log successful sign-in for debugging
+      console.log('User signed in:', {
+        userId: user.id,
+        email: user.email,
+        provider: account?.provider,
+        name: user.name
+      });
+      
+      // DynamoDB adapter automatically handles user creation
+      // This event is just for logging/monitoring purposes
+    },
+    async createUser({ user }) {
+      console.log('New user created in DynamoDB:', {
+        userId: user.id,
+        email: user.email,
+        name: user.name
+      });
+    }
+  },
   pages: {
     signIn: '/',
     signOut: '/',
   },
+  debug: process.env.NODE_ENV === 'development',
 });

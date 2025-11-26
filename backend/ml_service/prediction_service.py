@@ -283,15 +283,38 @@ class PredictionService:
         # For even odds: EV = win_prob - (1 - win_prob) = 2*win_prob - 1
         expected_value = 2 * win_prob - 1
         
-        # Generate recommendation
-        if win_prob >= 0.60:
-            recommendation = 'Good Bet'
-        elif win_prob >= 0.50:
-            recommendation = 'Fair Bet'
-        elif win_prob >= 0.40:
-            recommendation = 'Risky Bet'
-        else:
-            recommendation = 'Poor Bet'
+        # Generate recommendation based on win probability and confidence
+        # Low confidence requires higher win probability for same recommendation
+        if confidence == 'Low':
+            # More conservative thresholds for low confidence
+            if win_prob >= 0.75:
+                recommendation = 'Good Bet'
+            elif win_prob >= 0.65:
+                recommendation = 'Fair Bet'
+            elif win_prob >= 0.55:
+                recommendation = 'Risky Bet'
+            else:
+                recommendation = 'Poor Bet'
+        elif confidence == 'Medium':
+            # Standard thresholds
+            if win_prob >= 0.60:
+                recommendation = 'Good Bet'
+            elif win_prob >= 0.50:
+                recommendation = 'Fair Bet'
+            elif win_prob >= 0.40:
+                recommendation = 'Risky Bet'
+            else:
+                recommendation = 'Poor Bet'
+        else:  # High confidence
+            # Can be slightly more aggressive with high confidence
+            if win_prob >= 0.55:
+                recommendation = 'Good Bet'
+            elif win_prob >= 0.45:
+                recommendation = 'Fair Bet'
+            elif win_prob >= 0.35:
+                recommendation = 'Risky Bet'
+            else:
+                recommendation = 'Poor Bet'
         
         return {
             'win_probability': round(win_prob, 3),

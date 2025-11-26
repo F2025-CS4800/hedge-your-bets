@@ -14,13 +14,14 @@ export default function AboutPage() {
 			description:
 				"Passionate about creating innovative betting analysis tools with modern web technologies.",
 			emoji: "👨‍💻",
+			linkedin: "https://www.linkedin.com/in/jason-mar-b0bb8a268/",
 		},
 		{
 			name: "Tony Gonzalez",
 			role: "Machine Learning Engineer",
 			description:
 				"Creating advanced machine learning systems that process vast amounts of sports data to deliver reliable betting predictions and risk assessments.",
-			emoji: "🧑‍💼",
+			emoji: "👷",
 			linkedin: "https://www.linkedin.com/in/antoniogonzalez9868/",
 		},
 		{
@@ -93,7 +94,7 @@ export default function AboutPage() {
 								machine learning algorithms with comprehensive
 								sports analytics to help users make smarter
 								betting decisions. We're not just another
-								betting platform – we're your intelligent
+								betting platform, we're your intelligent
 								betting partner.
 							</p>
 
@@ -216,10 +217,10 @@ export default function AboutPage() {
 												🤖
 											</div>
 											<p className="font-semibold text-gray-800">
-												Machine Learning
+												LightGBM/Scikit-Learn
 											</p>
 											<p className="text-sm text-gray-600">
-												TensorFlow/LightGBM/Scikit-Learn
+												Machine Learning
 											</p>
 										</div>
 									</div>

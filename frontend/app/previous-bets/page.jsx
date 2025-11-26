@@ -54,6 +54,37 @@ export default function PreviousBetsPage() {
 
 	// Handle status changes
 	const handleStatusChange = async (betId, newStatus) => {
+		// Handle delete action
+		if (newStatus === 'delete') {
+			// Optimistically remove from UI
+			setBets(prevBets => prevBets.filter(bet => bet.id !== betId));
+
+			try {
+				const response = await fetch('/api/delete-bets', {
+					method: 'DELETE',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						createdAt: betId, // betId is the createdAt timestamp
+					}),
+				});
+
+				const data = await response.json();
+
+				if (!data.success) {
+					console.error('Failed to delete bet:', data.error);
+					// Restore bet on failure
+					window.location.reload(); // Simple way to restore state
+				}
+			} catch (error) {
+				console.error('Error deleting bet:', error);
+				window.location.reload(); // Restore state on error
+			}
+			return;
+		}
+
+		// Handle status update (won/lost/pending)
 		// Optimistically update UI
 		setBets(prevBets =>
 			prevBets.map(bet =>

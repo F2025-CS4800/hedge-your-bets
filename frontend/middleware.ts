@@ -3,7 +3,7 @@ import type {NextRequest} from 'next/server';
 import {auth} from '@/auth'; 
 
 // list of protected paths
-const protectedPaths = ['/previous-bets'];
+const protectedPaths = ['/previous-bets', '/popular-bets'];
 
 export async function middleware(req: NextRequest) {
 	const session = await auth();

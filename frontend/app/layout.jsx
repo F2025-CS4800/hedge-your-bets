@@ -31,11 +31,15 @@ export default async function RootLayout({ children }) {
 					`}
 				</Script>
 			</head>
-			<body className="antialiased">
+			<body className="antialiased overflow-x-hidden">
 				<SessionProviderWrapper session={session}>
-					<div className="min-h-screen bg-gray-950">
-						<Navigation session={session} />
-						<main>{children}</main>
+					<div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 relative overflow-hidden">
+						{/* Subtle animated dot pattern overlay */}
+						<div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[length:24px_24px] pointer-events-none bg-pattern-drift"></div>
+						<div className="relative z-10">
+							<Navigation session={session} />
+							<main>{children}</main>
+						</div>
 					</div>
 				</SessionProviderWrapper>
 			</body>

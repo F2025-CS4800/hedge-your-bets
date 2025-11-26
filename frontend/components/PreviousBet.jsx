@@ -4,6 +4,7 @@ import React, { useState } from "react";
 
 export default function PreviousBet({ bet, onStatusChange }) {
   const [status, setStatus] = useState(bet.status);
+  const [deleteState, setDeleteState] = useState('idle'); // 'idle', 'confirm', 'deleting'
   
   const {
     player,
@@ -18,9 +19,23 @@ export default function PreviousBet({ bet, onStatusChange }) {
   } = bet;
 
   const handleStatusChange = (newStatus) => {
-    setStatus(newStatus);
-    if (onStatusChange) {
-      onStatusChange(bet.id, newStatus);
+    if (newStatus === 'delete') {
+      if (deleteState === 'idle') {
+        setDeleteState('confirm');
+        // Reset after 3 seconds if user doesn't click again
+        setTimeout(() => setDeleteState('idle'), 3000);
+      } else if (deleteState === 'confirm') {
+        setDeleteState('deleting');
+        // Show the checkmark for 800ms before actually deleting
+        setTimeout(() => {
+          onStatusChange(bet.id, newStatus);
+        }, 800);
+      }
+    } else {
+      setStatus(newStatus);
+      if (onStatusChange) {
+        onStatusChange(bet.id, newStatus);
+      }
     }
   };
 
@@ -128,6 +143,41 @@ export default function PreviousBet({ bet, onStatusChange }) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Pending
+            </button>
+            <button
+              onClick={() => handleStatusChange('delete')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-1 ${
+                deleteState === 'idle'
+                  ? 'bg-white text-gray-600 border border-gray-300 hover:bg-red-50 hover:text-red-600 hover:border-red-300'
+                  : deleteState === 'confirm'
+                  ? 'bg-orange-500 text-white border border-orange-600 animate-pulse'
+                  : 'bg-green-500 text-white border border-green-600'
+              }`}
+              title={deleteState === 'idle' ? 'Delete Bet' : deleteState === 'confirm' ? 'Click again to confirm' : 'Deleted'}
+              disabled={deleteState === 'deleting'}
+            >
+              {deleteState === 'idle' ? (
+                <>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  Delete
+                </>
+              ) : deleteState === 'confirm' ? (
+                <>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  Click Again?
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Deleted
+                </>
+              )}
             </button>
           </div>
         </div>

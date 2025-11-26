@@ -50,12 +50,12 @@ export default function Navigation({ session }) {
 						>
 							Home
 						</Link>
-						<Link
-							href="/about"
-							className= {`${getActiveLinkClass("/about")} ${baseLinkClass}`}
-						>
-							About Us
-						</Link>
+					<Link
+						href="/about"
+						className= {`${getActiveLinkClass("/about")} ${baseLinkClass}`}
+					>
+						About Us
+					</Link>
             {session ? (
 							<Link
 								href="/previous-bets"
@@ -64,6 +64,20 @@ export default function Navigation({ session }) {
 								Previous Bets
 							</Link>
 						) : null}
+            {session ? (
+							<Link
+								href="/popular-bets"
+                className= {`${getActiveLinkClass("/popular-bets")} ${baseLinkClass}`}
+							>
+								HOT Bets
+							</Link>
+						) : null}
+						<Link
+							href="/terms"
+							className= {`${getActiveLinkClass("/terms&privacy")} ${baseLinkClass}`}
+						>
+							Terms & Privacy
+						</Link>
 						{session ? (
 							<div className="flex items-center space-x-4">
 								<span className="text-white font-medium">
@@ -129,6 +143,28 @@ export default function Navigation({ session }) {
 								className= {`block px-3 py-2 ${getActiveLinkClass("/about")} ${baseLinkClass}`}
 							>
 								About Us
+							</Link>
+							{session ? (
+								<Link
+									href="/previous-bets"
+									className= {`block px-3 py-2 ${getActiveLinkClass("/previous-bets")} ${baseLinkClass}`}
+								>
+									Previous Bets
+								</Link>
+							) : null}
+							{session ? (
+								<Link
+									href="/popular-bets"
+									className= {`block px-3 py-2 ${getActiveLinkClass("/popular-bets")} ${baseLinkClass}`}
+								>
+									Popular Bets
+								</Link>
+							) : null}
+							<Link
+								href="/terms"
+								className= {`block px-3 py-2 ${getActiveLinkClass("/terms")} ${baseLinkClass}`}
+							>
+								Terms & Privacy
 							</Link>
 							<div className="px-3 py-2">
 								{session ? (

@@ -344,7 +344,7 @@ class BettingScenario(models.Model):
     expected_value = models.FloatField(
         null=True,
         blank=True,
-        help_text="Expected value of the bet"
+        help_text="Probability edge: deviation from 50% win probability (range: -1 to +1)"
     )
     
     recommendation = models.CharField(

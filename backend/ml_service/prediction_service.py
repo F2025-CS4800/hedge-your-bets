@@ -278,9 +278,11 @@ class PredictionService:
         else:
             confidence = 'Low'
         
-        # Expected value (simplified - assumes even odds)
-        # EV = (win_prob * win_amount) - (loss_prob * loss_amount)
-        # For even odds: EV = win_prob - (1 - win_prob) = 2*win_prob - 1
+        # Probability Edge: measures how much win probability deviates from 50% (fair odds)
+        # Range: -1 (0% win prob) to +1 (100% win prob), 0 = 50% (fair odds)
+        # Formula: 2 * win_prob - 1
+        # Positive = favorable probability, negative = unfavorable
+        # Note: This is NOT actual monetary expected value (which would require odds/bet amounts)
         expected_value = 2 * win_prob - 1
         
         # Generate recommendation based on win probability and confidence

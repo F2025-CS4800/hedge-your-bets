@@ -203,7 +203,7 @@ export default function PredictionResults({ predictionData }) {
                     </span>
                   </div>
                   <div className="text-gray-600">
-                    Expected Value: {analysis.expected_value?.toFixed(3)}
+                    Probability Edge: {analysis.expected_value?.toFixed(3)}
                   </div>
                 </div>
                 <div className={`w-12 h-12 ${getRecommendationIcon(analysis.recommendation).bg} rounded-lg flex items-center justify-center`}>

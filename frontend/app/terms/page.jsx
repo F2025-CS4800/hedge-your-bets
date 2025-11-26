@@ -35,6 +35,17 @@ export default function TermsAndPrivacy() {
             <strong> This is not financial advice and should not be used as the sole basis for 
             making betting decisions.</strong>
           </p>
+          <p className="mb-4">
+            <strong>Hedge Your Bets is not responsible for any monetary loss</strong> incurred 
+            as a result of using our platform, predictions, or analysis. All betting decisions 
+            and their financial consequences are solely the responsibility of the user.
+          </p>
+          <p className="mb-4">
+            Our prediction models are based strictly on objective historical data that is 
+            publicly available. We do not use insider information, proprietary data sources, 
+            or any non-public information in generating our predictions. All analysis is 
+            derived from publicly accessible statistical data and historical performance records.
+          </p>
 
           <h2 className="text-2xl font-semibold text-gray-800 mt-8 mb-4">Gambling Disclaimer</h2>
           <p className="mb-4">

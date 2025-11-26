@@ -16,11 +16,12 @@ export default function AboutPage() {
 			emoji: "👨‍💻",
 		},
 		{
-			name: "AI Assistant",
+			name: "Tony Gonzalez",
 			role: "Machine Learning Engineer",
 			description:
-				"Developing cutting-edge algorithms for sports betting predictions and risk analysis.",
-			emoji: "🤖",
+				"Creating advanced machine learning systems that process vast amounts of sports data to deliver reliable betting predictions and risk assessments.",
+			emoji: "🧑‍💼",
+			linkedin: "https://www.linkedin.com/in/antoniogonzalez9868/",
 		},
 		{
 			name: "Data Science Team",
@@ -127,20 +128,44 @@ export default function AboutPage() {
 								<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 									{teamMembers.map((member, index) => (
 										<div key={index} className="group">
-											<div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-												<div className="text-6xl mb-4 group-hover:scale-110 transition-transform duration-300">
-													{member.emoji}
+											{member.linkedin ? (
+												<Link 
+													href={member.linkedin}
+													target="_blank"
+													rel="noopener noreferrer"
+													className="block cursor-pointer"
+												>
+													<div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+														<div className="text-6xl mb-4 group-hover:scale-110 transition-transform duration-300">
+															{member.emoji}
+														</div>
+														<h3 className="text-xl font-bold text-gray-900 mb-2">
+															{member.name}
+														</h3>
+														<p className="text-blue-600 font-semibold mb-4">
+															{member.role}
+														</p>
+														<p className="text-gray-600 leading-relaxed">
+															{member.description}
+														</p>
+													</div>
+												</Link>
+											) : (
+												<div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+													<div className="text-6xl mb-4 group-hover:scale-110 transition-transform duration-300">
+														{member.emoji}
+													</div>
+													<h3 className="text-xl font-bold text-gray-900 mb-2">
+														{member.name}
+													</h3>
+													<p className="text-blue-600 font-semibold mb-4">
+														{member.role}
+													</p>
+													<p className="text-gray-600 leading-relaxed">
+														{member.description}
+													</p>
 												</div>
-												<h3 className="text-xl font-bold text-gray-900 mb-2">
-													{member.name}
-												</h3>
-												<p className="text-blue-600 font-semibold mb-4">
-													{member.role}
-												</p>
-												<p className="text-gray-600 leading-relaxed">
-													{member.description}
-												</p>
-											</div>
+											)}
 										</div>
 									))}
 								</div>
@@ -194,7 +219,7 @@ export default function AboutPage() {
 												Machine Learning
 											</p>
 											<p className="text-sm text-gray-600">
-												AI Engine
+												TensorFlow/LightGBM/Scikit-Learn
 											</p>
 										</div>
 									</div>

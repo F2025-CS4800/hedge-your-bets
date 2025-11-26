@@ -229,7 +229,7 @@ export default function BettingForm({ session }) {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 pt-8">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 pt-4">
       {/* Main Card with Glassmorphism */}
       <div className="backdrop-blur-xl bg-white/95 rounded-3xl shadow-2xl overflow-hidden border border-white/20">
         {/* Header Section with Gradient */}

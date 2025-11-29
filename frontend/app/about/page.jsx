@@ -25,6 +25,14 @@ export default function AboutPage() {
 			linkedin: "https://www.linkedin.com/in/antoniogonzalez9868/",
 		},
 		{
+			name: "Timothy Tsang",
+			role: "Frontend Developer",
+			description: 
+				"Developing intuitive, high performance interfaces to translate complex betting data into actionable insights.",
+			emoji: "👨‍🔧" ,
+			linkedin: "https://www.linkedin.com/in/timothy-tsang-7b39162b1/"
+		},
+		{
 			name: "Data Science Team",
 			role: "Data Scientists",
 			description:

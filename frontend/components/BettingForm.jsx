@@ -412,7 +412,7 @@ export default function BettingForm({ session }) {
                   </svg>
                   Action Amount <span className="text-red-500">*</span>
                 </label>
-                <div className="relative">
+                <div className="relative flex items-center gap-3">
                   <input
                     type="number"
                     name="actionAmount"
@@ -421,12 +421,12 @@ export default function BettingForm({ session }) {
                     placeholder="250"
                     min="0"
                     step="0.1"
-                    className="w-full px-5 py-4 pr-16 bg-white border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all duration-200 hover:border-gray-300 text-gray-700 font-medium placeholder:text-gray-400"
+                    className="flex-1 px-5 py-4 bg-white border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all duration-200 hover:border-gray-300 text-gray-700 font-medium placeholder:text-gray-400"
                     required
                   />
-                  <div className="absolute right-16 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 font-medium">
-                    <span className="text-sm">units</span>
-                  </div>
+                  <span className="text-sm font-medium text-gray-500 bg-gray-100 px-4 py-4 rounded-xl border-2 border-gray-200">
+                    units
+                  </span>
                 </div>
                 <p className="text-sm text-gray-500 mt-2 ml-1 flex items-center gap-1">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -44,6 +44,7 @@ const ImageModal = ({ imageUrl, onClose }) => {
 // --- ContentRow Component (Client-side) ---
 export default function ContentRow({ title, cardDataArray }) {
     const [selectedImage, setSelectedImage] = useState(null);
+    const scrollContainerRef = useState(null)[0];
 
     // Function now accepts the modalImagePath (the high-resolution path)
     const handleCardClick = (modalPath) => {
@@ -54,11 +55,44 @@ export default function ContentRow({ title, cardDataArray }) {
         setSelectedImage(null);
     };
 
+    const scroll = (direction) => {
+        const container = document.getElementById(`scroll-${title.replace(/\s+/g, '-')}`);
+        if (container) {
+            const scrollAmount = 400;
+            container.scrollBy({
+                left: direction === 'left' ? -scrollAmount : scrollAmount,
+                behavior: 'smooth'
+            });
+        }
+    };
+
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 relative group">
             <h3 className="text-2xl font-bold text-white">{title}</h3>
             
-            <div className="flex space-x-4 overflow-x-scroll pb-4 scrollbar-hide">
+            {/* Left Arrow */}
+            <button
+                onClick={() => scroll('left')}
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full p-3 shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 transform hover:scale-110"
+                aria-label="Scroll left"
+            >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+
+            {/* Right Arrow */}
+            <button
+                onClick={() => scroll('right')}
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full p-3 shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 transform hover:scale-110"
+                aria-label="Scroll right"
+            >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
+            
+            <div id={`scroll-${title.replace(/\s+/g, '-')}`} className="flex space-x-4 overflow-x-scroll pb-4 custom-scrollbar">
                 
                 {cardDataArray.map((card, index) => (
                     <div 

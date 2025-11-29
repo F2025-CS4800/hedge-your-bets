@@ -45,3 +45,14 @@ body {
 .animate-bounce-slow {
   animation: bounce-slow 3s ease-in-out infinite;
 }
+
+/* Hide scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Firefox scrollbar hiding */
+.custom-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}

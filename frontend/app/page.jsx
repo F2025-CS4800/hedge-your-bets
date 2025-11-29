@@ -50,14 +50,14 @@ export default async function HomePage() {
         return (
             <div className="p-4 md:p-8 min-h-screen">
                 {/* Text Section Above Betting Form */}
-                <div className="mb-8 max-w-4xl">
+                <div className="mb-8 max-w-4xl mx-auto text-center">
                     <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">
                         Hedge Your Bets
                     </h1>
                     <h2 className="text-xl md:text-2xl text-white/90 mb-4 font-semibold">
                         AI-Powered Sports Betting Analysis
                     </h2>
-                    <p className="text-lg text-white/80 max-w-3xl">
+                    <p className="text-lg text-white/80 max-w-3xl mx-auto">
                         Make smarter betting decisions with our advanced analytics and machine learning insights.
                     </p>
                 </div>

@@ -48,8 +48,19 @@ export default async function HomePage() {
     if (session) {
         // --- AUTHENTICATED USER: Shows betting form (The Home Page) ---
         return (
-            <div className="p-4 md:p-8 bg-gray-950 min-h-screen">
-                <h1 className="text-4xl font-bold text-white mb-6">Start Your Predictions</h1>
+            <div className="p-4 md:p-8 min-h-screen">
+                {/* Text Section Above Betting Form */}
+                <div className="mb-8 max-w-4xl">
+                    <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">
+                        Hedge Your Bets
+                    </h1>
+                    <h2 className="text-xl md:text-2xl text-white/90 mb-4 font-semibold">
+                        AI-Powered Sports Betting Analysis
+                    </h2>
+                    <p className="text-lg text-white/80 max-w-3xl">
+                        Make smarter betting decisions with our advanced analytics and machine learning insights.
+                    </p>
+                </div>
                 <BettingForm session={session} />
             </div>
         );
@@ -57,7 +68,7 @@ export default async function HomePage() {
 
     // --- UNATHENTICATED USER: Shows landing page (The Marketing Page) ---
     return (
-        <div className="min-h-screen bg-gray-950">
+        <div className="min-h-screen">
             
             {/* 1. Rotating Hero Section */}
             <RotatingHeroBackground />

@@ -33,6 +33,13 @@ export default function AboutPage() {
 			linkedin: "https://www.linkedin.com/in/timothy-tsang-7b39162b1/"
 		},
 		{
+			name: "Michael Castillo",
+			role: "Backend Developer",
+			description:
+				"Building robust server infrastructure and APIs that power seamless data flow between machine learning models and user-facing features.",
+			emoji: "👨‍🔬",
+		},
+		{
 			name: "Data Science Team",
 			role: "Data Scientists",
 			description:

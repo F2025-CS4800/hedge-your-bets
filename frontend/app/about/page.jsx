@@ -39,13 +39,6 @@ export default function AboutPage() {
 				"Building robust server infrastructure and APIs that power seamless data flow between machine learning models and user-facing features.",
 			emoji: "👨‍🔬",
 		},
-		{
-			name: "Data Science Team",
-			role: "Data Scientists",
-			description:
-				"Analyzing vast amounts of sports data to provide accurate betting insights.",
-			emoji: "📊",
-		},
 	];
 
 	const features = [

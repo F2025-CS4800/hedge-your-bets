@@ -266,17 +266,40 @@ class PredictionService:
         # Clamp probability between 0.05 and 0.95
         win_prob = max(0.05, min(0.95, win_prob))
         
-        # Determine confidence level based on prediction spread
+        # Determine confidence level based on prediction spread AND win probability
+        # High win probability (>90% or <10%) indicates high confidence in outcome,
+        # even if prediction spread is wide
         spread = q90 - q10
         median = q50
         relative_spread = spread / (median + 1)  # Coefficient of variation approximation
         
+        # Base confidence on prediction spread
         if relative_spread < 0.3:
-            confidence = 'High'
+            base_confidence = 'High'
         elif relative_spread < 0.6:
-            confidence = 'Medium'
+            base_confidence = 'Medium'
         else:
-            confidence = 'Low'
+            base_confidence = 'Low'
+        
+        # Adjust confidence based on win probability
+        # Very high or very low win probability increases confidence
+        if win_prob >= 0.90 or win_prob <= 0.10:
+            # Extremely high/low win probability -> boost confidence
+            if base_confidence == 'Low':
+                confidence = 'Medium'
+            elif base_confidence == 'Medium':
+                confidence = 'High'
+            else:
+                confidence = 'High'
+        elif win_prob >= 0.80 or win_prob <= 0.20:
+            # High/low win probability -> moderate boost
+            if base_confidence == 'Low':
+                confidence = 'Medium'
+            else:
+                confidence = base_confidence
+        else:
+            # Moderate win probability -> use base confidence from spread
+            confidence = base_confidence
         
         # Probability Edge: measures how much win probability deviates from 50% (fair odds)
         # Range: -1 (0% win prob) to +1 (100% win prob), 0 = 50% (fair odds)

@@ -267,39 +267,51 @@ class PredictionService:
         win_prob = max(0.05, min(0.95, win_prob))
         
         # Determine confidence level based on prediction spread AND win probability
-        # High win probability (>90% or <10%) indicates high confidence in outcome,
-        # even if prediction spread is wide
+        # Confidence reflects both:
+        # 1. Model certainty (prediction spread) - how certain is the model about the value?
+        # 2. Outcome certainty (win probability) - how certain are we about the bet outcome?
         spread = q90 - q10
         median = q50
         relative_spread = spread / (median + 1)  # Coefficient of variation approximation
         
-        # Base confidence on prediction spread
+        # Calculate confidence score from prediction spread (0-2 scale)
+        # Low spread = high model confidence, High spread = low model confidence
         if relative_spread < 0.3:
-            base_confidence = 'High'
+            spread_score = 2.0  # High model confidence
         elif relative_spread < 0.6:
-            base_confidence = 'Medium'
+            spread_score = 1.0  # Medium model confidence
         else:
-            base_confidence = 'Low'
+            spread_score = 0.0  # Low model confidence
         
-        # Adjust confidence based on win probability
-        # Very high or very low win probability increases confidence
+        # Calculate confidence score from win probability (0-2 scale)
+        # Distance from 50% (0.5) indicates outcome certainty
+        # Win prob of 0.5 = uncertain outcome, 0.0 or 1.0 = certain outcome
+        prob_distance_from_50 = abs(win_prob - 0.5)  # Range: 0.0 to 0.5
+        prob_score = prob_distance_from_50 * 4.0  # Scale to 0-2 range (0.5 * 4 = 2.0)
+        
+        # Combine scores with weighted average
+        # Weight spread more when win prob is moderate (outcome uncertain)
+        # Weight win prob more when it's extreme (outcome certain)
         if win_prob >= 0.90 or win_prob <= 0.10:
-            # Extremely high/low win probability -> boost confidence
-            if base_confidence == 'Low':
-                confidence = 'Medium'
-            elif base_confidence == 'Medium':
-                confidence = 'High'
-            else:
-                confidence = 'High'
+            # Extreme win probability: outcome is nearly certain, weight win prob heavily
+            combined_score = 0.2 * spread_score + 0.8 * prob_score
+            # Ensure minimum score for extreme probabilities (outcome is very certain)
+            combined_score = max(combined_score, 1.4)
         elif win_prob >= 0.80 or win_prob <= 0.20:
-            # High/low win probability -> moderate boost
-            if base_confidence == 'Low':
-                confidence = 'Medium'
-            else:
-                confidence = base_confidence
+            # High/low win probability: balance both factors
+            combined_score = 0.5 * spread_score + 0.5 * prob_score
         else:
-            # Moderate win probability -> use base confidence from spread
-            confidence = base_confidence
+            # Moderate win probability: outcome uncertain, weight spread more
+            combined_score = 0.7 * spread_score + 0.3 * prob_score
+        
+        # Map combined score to confidence level
+        # Score ranges: 0-0.67 = Low, 0.67-1.33 = Medium, 1.33-2.0 = High
+        if combined_score >= 1.33:
+            confidence = 'High'
+        elif combined_score >= 0.67:
+            confidence = 'Medium'
+        else:
+            confidence = 'Low'
         
         # Probability Edge: measures how much win probability deviates from 50% (fair odds)
         # Range: -1 (0% win prob) to +1 (100% win prob), 0 = 50% (fair odds)

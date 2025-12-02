@@ -26,9 +26,9 @@ export default function AboutPage() {
 		},
 		{
 			name: "Timothy Tsang",
-			role: "Frontend Developer",
+			role: "Full Stack Developer",
 			description: 
-				"Developing intuitive, high performance interfaces to translate complex betting data into actionable insights.",
+				"Developing intuitive, high performance interfaces and backend infrastructure to translate complex betting data into actionable insights.",
 			emoji: "👨‍🔧" ,
 			linkedin: "https://www.linkedin.com/in/timothy-tsang-7b39162b1/"
 		},

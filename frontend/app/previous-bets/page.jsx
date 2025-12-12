@@ -75,11 +75,15 @@ export default function PreviousBetsPage() {
 				if (!data.success) {
 					console.error('Failed to delete bet:', data.error);
 					// Restore bet on failure
-					window.location.reload(); // Simple way to restore state
+					if (typeof window !== 'undefined') {
+						window.location.reload(); // Simple way to restore state
+					}
 				}
 			} catch (error) {
 				console.error('Error deleting bet:', error);
-				window.location.reload(); // Restore state on error
+				if (typeof window !== 'undefined') {
+					window.location.reload(); // Restore state on error
+				}
 			}
 			return;
 		}
@@ -326,7 +330,7 @@ export default function PreviousBetsPage() {
 						</h2>
 						<p className="text-red-700 mb-6">{error}</p>
 						<button 
-							onClick={() => window.location.reload()}
+							onClick={() => typeof window !== 'undefined' && window.location.reload()}
 							className="inline-block bg-gradient-to-r from-red-600 to-red-700 text-white font-bold py-3 px-8 rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-300 transform hover:scale-105 shadow-lg"
 						>
 							Try Again

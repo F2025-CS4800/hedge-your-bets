@@ -56,6 +56,7 @@ export default function ContentRow({ title, cardDataArray }) {
     };
 
     const scroll = (direction) => {
+        if (typeof document === 'undefined') return;
         const container = document.getElementById(`scroll-${title.replace(/\s+/g, '-')}`);
         if (container) {
             const scrollAmount = 400;
